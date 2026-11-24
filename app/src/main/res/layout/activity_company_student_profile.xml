@@ -1,0 +1,730 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_page"
+    android:orientation="vertical">
+
+    <!-- ── Clean Top Bar (No duplicate Message button clipping subtitle) ── -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:background="@color/bg_card"
+        android:paddingHorizontal="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center_vertical"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <FrameLayout
+                android:id="@+id/btnBack"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="?attr/colorOnSurface" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Applicant Profile"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvTopSubtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:text="Academic credentials &amp; application history"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="@color/nav_unselected"
+                    android:textSize="11.5sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/stroke_soft" />
+
+    <!-- ── Content ─────────────────────────────────────────────── -->
+    <com.example.internshipms.view.PullRefreshScrollView
+        android:id="@+id/scrollRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- ══ Card 1: Clean Hero Identity Card with Emerald Banner ══ -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.App.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="22dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Emerald Top Banner: Student Applicant (Left) + Cohort Badge (Right) -->
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="82dp"
+                        android:background="#FF059669"
+                        android:paddingHorizontal="16dp"
+                        android:paddingTop="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top|start"
+                            android:background="@drawable/bg_chip"
+                            android:backgroundTint="#33FFFFFF"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="3.5dp"
+                            android:text="🎓 Student Applicant"
+                            android:textColor="@color/white"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvStudentCohortBadge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top|end"
+                            android:background="@drawable/bg_chip"
+                            android:backgroundTint="@color/white"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="3.5dp"
+                            android:text="Cohort 2024"
+                            android:textColor="#FF059669"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+
+                    <!-- Overlapping Avatar with True White Border + Identity + Stats + Actions -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="-38dp"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="18dp"
+                        android:paddingBottom="18dp">
+
+                        <!-- Outer White Frame Card + Inner Cropped Avatar Card (Guarantees visible white border) -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            app:cardBackgroundColor="@color/bg_card"
+                            app:cardCornerRadius="22dp"
+                            app:cardElevation="3dp"
+                            app:strokeWidth="0dp">
+
+                            <com.google.android.material.card.MaterialCardView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_margin="3.5dp"
+                                app:cardBackgroundColor="#FF059669"
+                                app:cardCornerRadius="18.5dp"
+                                app:cardElevation="0dp"
+                                app:strokeWidth="0dp">
+
+                                <FrameLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent">
+
+                                    <TextView
+                                        android:id="@+id/tvStudentInitials"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:gravity="center"
+                                        android:text="ST"
+                                        android:textColor="@color/white"
+                                        android:textSize="22sp"
+                                        android:textStyle="bold" />
+
+                                    <ImageView
+                                        android:id="@+id/ivStudentAvatar"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:importantForAccessibility="no"
+                                        android:scaleType="centerCrop"
+                                        android:visibility="gone" />
+                                </FrameLayout>
+                            </com.google.android.material.card.MaterialCardView>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <TextView
+                            android:id="@+id/tvStudentName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="Candidate Name"
+                            android:textAppearance="?attr/textAppearanceTitleLarge"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvStudentUniversity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Software Engineering · Computer Science &amp; IT"
+                            android:textColor="@color/nav_unselected"
+                            android:textSize="12.5sp" />
+
+                        <!-- Quick Stats Strip (GPA / 4.0 | Skills | Applied | Resume) -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:background="@drawable/bg_chip"
+                            android:backgroundTint="@color/bg_page"
+                            android:baselineAligned="false"
+                            android:orientation="horizontal"
+                            android:paddingVertical="10dp">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvStatGpa"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="★ 3.80"
+                                    android:textColor="?attr/colorPrimary"
+                                    android:textSize="13.5sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="1dp"
+                                    android:text="GPA / 4.0"
+                                    android:textColor="@color/nav_unselected"
+                                    android:textSize="10sp" />
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center_vertical"
+                                android:background="@color/stroke_soft" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvStatSkillsCount"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="13.5sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="1dp"
+                                    android:text="Skills"
+                                    android:textColor="@color/nav_unselected"
+                                    android:textSize="10sp" />
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center_vertical"
+                                android:background="@color/stroke_soft" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvStatAppsCount"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0"
+                                    android:textColor="?attr/colorOnSurface"
+                                    android:textSize="13.5sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="1dp"
+                                    android:text="Applied"
+                                    android:textColor="@color/nav_unselected"
+                                    android:textSize="10sp" />
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="24dp"
+                                android:layout_gravity="center_vertical"
+                                android:background="@color/stroke_soft" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tvStatResumeStatus"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="PDF ✓"
+                                    android:textColor="?attr/colorPrimary"
+                                    android:textSize="12.5sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="1dp"
+                                    android:text="Resume"
+                                    android:textColor="@color/nav_unselected"
+                                    android:textSize="10sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Single-Line Action Row: View Resume + Send Message -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnViewResume"
+                                style="@style/Widget.Material3.Button.TonalButton"
+                                android:layout_width="0dp"
+                                android:layout_height="42dp"
+                                android:layout_marginEnd="8dp"
+                                android:layout_weight="1"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:maxLines="1"
+                                android:text="📄 View Resume"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="12.5sp"
+                                android:textStyle="bold"
+                                android:visibility="gone"
+                                app:backgroundTint="@color/bg_page"
+                                app:cornerRadius="12dp"
+                                app:strokeColor="@color/stroke_soft"
+                                app:strokeWidth="1dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnMessageCandidate"
+                                style="@style/Widget.Material3.Button"
+                                android:layout_width="0dp"
+                                android:layout_height="42dp"
+                                android:layout_weight="1"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:maxLines="1"
+                                android:text="Send Message"
+                                android:textColor="@color/white"
+                                android:textSize="12.5sp"
+                                android:textStyle="bold"
+                                app:backgroundTint="?attr/colorPrimary"
+                                app:cornerRadius="12dp"
+                                app:icon="@drawable/ic_messages"
+                                app:iconGravity="textStart"
+                                app:iconPadding="8dp"
+                                app:iconSize="15dp"
+                                app:iconTint="@color/white" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ══ Card 2: Streamlined Contact & Student Identity (No Duplicate Major/Cohort) ══ -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.App.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="22dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Contact &amp; Student Details"
+                        android:textAppearance="?attr/textAppearanceTitleSmall"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <!-- Student ID Row -->
+                    <LinearLayout
+                        android:id="@+id/boxStudentIdCopy"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingVertical="4dp">
+
+                        <TextView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_chip"
+                            android:backgroundTint="@color/tint_indigo_bg"
+                            android:gravity="center"
+                            android:text="🪪"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:layout_width="86dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="Student ID"
+                            android:textColor="@color/nav_unselected"
+                            android:textSize="12.5sp" />
+
+                        <TextView
+                            android:id="@+id/tvStudentIdNumber"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:text="BSR12034920"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:background="@drawable/bg_chip"
+                            android:backgroundTint="@color/bg_page"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2.5dp"
+                            android:text="Copy"
+                            android:textColor="@color/nav_unselected"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="6dp"
+                        android:background="@color/stroke_soft" />
+
+                    <!-- Email Row -->
+                    <LinearLayout
+                        android:id="@+id/rowEmailContact"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingVertical="4dp">
+
+                        <TextView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_chip"
+                            android:backgroundTint="@color/tint_green_bg"
+                            android:gravity="center"
+                            android:text="✉"
+                            android:textColor="?attr/colorPrimary"
+                            android:textSize="13.5sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="86dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="Email"
+                            android:textColor="@color/nav_unselected"
+                            android:textSize="12.5sp" />
+
+                        <TextView
+                            android:id="@+id/tvStudentEmail"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:text="student@gmail.com"
+                            android:textColor="?attr/colorPrimary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/btnCopyEmail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:background="@drawable/bg_chip"
+                            android:backgroundTint="@color/bg_page"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2.5dp"
+                            android:text="Copy"
+                            android:textColor="@color/nav_unselected"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="6dp"
+                        android:background="@color/stroke_soft" />
+
+                    <!-- Phone Row -->
+                    <LinearLayout
+                        android:id="@+id/rowPhoneContact"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingVertical="4dp">
+
+                        <TextView
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_chip"
+                            android:backgroundTint="@color/tint_amber_bg"
+                            android:gravity="center"
+                            android:text="📞"
+                            android:textSize="12.5sp" />
+
+                        <TextView
+                            android:layout_width="86dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="Phone"
+                            android:textColor="@color/nav_unselected"
+                            android:textSize="12.5sp" />
+
+                        <TextView
+                            android:id="@+id/tvStudentPhone"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:text="+855 12 345 678"
+                            android:textColor="?attr/colorPrimary"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/btnCopyPhone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:background="@drawable/bg_chip"
+                            android:backgroundTint="@color/bg_page"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2.5dp"
+                            android:text="Copy"
+                            android:textColor="@color/nav_unselected"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ══ Card 3: Collapsible Technical Skills & Competencies ══ -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.App.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="22dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tvSkillsHeader"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Technical Skills &amp; Competencies"
+                            android:textAppearance="?attr/textAppearanceTitleSmall"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/btnToggleSkills"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_chip"
+                            android:backgroundTint="@color/bg_page"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:paddingHorizontal="9dp"
+                            android:paddingVertical="3dp"
+                            android:text="Show All"
+                            android:textColor="?attr/colorPrimary"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
+                    </LinearLayout>
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chipGroupSkills"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        app:chipSpacingHorizontal="6dp"
+                        app:chipSpacingVertical="6dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ══ Card 4: Bio / Summary ══ -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.App.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="22dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="About Candidate"
+                        android:textAppearance="?attr/textAppearanceTitleSmall"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvStudentBio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:lineSpacingExtra="4dp"
+                        android:text="No professional summary provided by the candidate."
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ══ Card 5: Applications to Your Company ══ -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Widget.App.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="22dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tvApplicationsHeader"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Applications to Your Company (0)"
+                        android:textAppearance="?attr/textAppearanceTitleSmall"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:id="@+id/containerStudentApplications"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </com.example.internshipms.view.PullRefreshScrollView>
+
+</LinearLayout>

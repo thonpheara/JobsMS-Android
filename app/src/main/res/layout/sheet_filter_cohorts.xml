@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/bg_card">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="24dp">
+
+        <!-- Drag Handle -->
+        <View
+            android:layout_width="38dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="14dp"
+            android:background="@drawable/bg_chip"
+            android:backgroundTint="@color/stroke_soft" />
+
+        <!-- Header -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|center_vertical"
+                android:text="Filter &amp; Sort Internships"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnResetFilters"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingVertical="4dp"
+                android:text="Reset All"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </FrameLayout>
+
+        <!-- Sort By -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:letterSpacing="0.05"
+            android:text="SORT BY"
+            android:textColor="@color/nav_unselected"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupSort"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:chipSpacingHorizontal="8dp"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipSortNewest"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Newest First"
+                android:textColor="@color/selector_chip_text"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/selector_chip_bg"
+                app:chipCornerRadius="20dp"
+                app:chipStrokeColor="@color/selector_chip_stroke"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipSortDeadline"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Closing Soonest"
+                android:textColor="@color/selector_chip_text"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/selector_chip_bg"
+                app:chipCornerRadius="20dp"
+                app:chipStrokeColor="@color/selector_chip_stroke"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipSortStipend"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Highest Stipend"
+                android:textColor="@color/selector_chip_text"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/selector_chip_bg"
+                app:chipCornerRadius="20dp"
+                app:chipStrokeColor="@color/selector_chip_stroke"
+                app:chipStrokeWidth="1dp" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- Application Deadline -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:letterSpacing="0.05"
+            android:text="APPLICATION DEADLINE"
+            android:textColor="@color/nav_unselected"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupDeadline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:chipSpacingHorizontal="8dp"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipDeadlineOpen"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="All Open Positions"
+                android:textColor="@color/selector_chip_text"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/selector_chip_bg"
+                app:chipCornerRadius="20dp"
+                app:chipStrokeColor="@color/selector_chip_stroke"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipDeadlineSoon"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Closing in ≤ 7 Days"
+                android:textColor="@color/selector_chip_text"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/selector_chip_bg"
+                app:chipCornerRadius="20dp"
+                app:chipStrokeColor="@color/selector_chip_stroke"
+                app:chipStrokeWidth="1dp" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- Monthly Stipend -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:letterSpacing="0.05"
+            android:text="MONTHLY STIPEND"
+            android:textColor="@color/nav_unselected"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupStipend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:chipSpacingHorizontal="8dp"
+            app:selectionRequired="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipStipendAll"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Any Stipend"
+                android:textColor="@color/selector_chip_text"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/selector_chip_bg"
+                app:chipCornerRadius="20dp"
+                app:chipStrokeColor="@color/selector_chip_stroke"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipStipendPaid"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Paid Only"
+                android:textColor="@color/selector_chip_text"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/selector_chip_bg"
+                app:chipCornerRadius="20dp"
+                app:chipStrokeColor="@color/selector_chip_stroke"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipStipend150"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$150+ / mo"
+                android:textColor="@color/selector_chip_text"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/selector_chip_bg"
+                app:chipCornerRadius="20dp"
+                app:chipStrokeColor="@color/selector_chip_stroke"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipStipend200"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$200+ / mo"
+                android:textColor="@color/selector_chip_text"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/selector_chip_bg"
+                app:chipCornerRadius="20dp"
+                app:chipStrokeColor="@color/selector_chip_stroke"
+                app:chipStrokeWidth="1dp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipStipendNone"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Unpaid"
+                android:textColor="@color/selector_chip_text"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:checkedIconVisible="false"
+                app:chipBackgroundColor="@color/selector_chip_bg"
+                app:chipCornerRadius="20dp"
+                app:chipStrokeColor="@color/selector_chip_stroke"
+                app:chipStrokeWidth="1dp" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- Apply Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnApplyFilters"
+            style="@style/Widget.App.Button"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="20dp"
+            android:text="Apply Filters"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            app:backgroundTint="?attr/colorPrimary"
+            app:cornerRadius="14dp"
+            app:icon="@drawable/ic_check"
+            app:iconGravity="textStart"
+            app:iconTint="@color/white" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_page">#FF0F172A</color>
+    <color name="bg_card">#FF1E293B</color>
+    <color name="stroke_soft">#FF334155</color>
+    <color name="tint_green_bg">#FF064E3B</color>
+    <color name="tint_green">#FF6EE7B7</color>
+    <color name="tint_red_bg">#FF7F1D1D</color>
+    <color name="tint_red">#FFFCA5A5</color>
+    <color name="tint_indigo_bg">#FF312E81</color>
+    <color name="tint_indigo">#FFA5B4FC</color>
+    <color name="tint_amber_bg">#FF78350F</color>
+    <color name="tint_amber">#FFFCD34D</color>
+    <color name="nav_unselected">#FF94A3B8</color>
+</resources>

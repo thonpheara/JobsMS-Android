@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.chip.Chip xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.Material3.Chip.Filter"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:checkable="true"
+    android:textColor="@color/selector_chip_text"
+    android:textSize="12sp"
+    android:textStyle="bold"
+    app:checkedIconVisible="false"
+    app:chipBackgroundColor="@color/selector_chip_bg"
+    app:chipCornerRadius="20dp"
+    app:chipMinHeight="36dp"
+    app:chipStrokeColor="@color/selector_chip_stroke"
+    app:chipStrokeWidth="1dp"
+    app:ensureMinTouchTargetSize="false" />

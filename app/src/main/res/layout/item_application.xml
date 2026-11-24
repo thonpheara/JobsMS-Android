@@ -1,0 +1,632 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.App.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="14dp"
+    app:cardCornerRadius="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 1. Header Row: Company Logo + Title + Company/Location + Status Pill -->
+        <LinearLayout
+            android:id="@+id/headerRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="top"
+            android:orientation="horizontal">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/logoBox"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
+                app:cardBackgroundColor="?attr/colorPrimary"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <ImageView
+                    android:id="@+id/ivLogo"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    app:tint="@color/white" />
+
+                <ImageView
+                    android:id="@+id/ivCompanyLogo"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:importantForAccessibility="no"
+                    android:scaleType="centerCrop"
+                    android:visibility="gone" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceTitleSmall"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvCompany"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                <!-- Applied Date + CV Badge -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="13dp"
+                        android:layout_height="13dp"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_event"
+                        app:tint="?attr/colorOnSurfaceVariant" />
+
+                    <TextView
+                        android:id="@+id/tvAppliedDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:id="@+id/tvCvBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_chip"
+                        android:backgroundTint="@color/tint_green_bg"
+                        android:ellipsize="middle"
+                        android:maxWidth="130dp"
+                        android:paddingHorizontal="7dp"
+                        android:paddingVertical="2dp"
+                        android:singleLine="true"
+                        android:text="📄 Resume.pdf"
+                        android:textColor="?attr/colorPrimary"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvStatusPill"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:background="@drawable/bg_chip"
+                android:paddingHorizontal="9dp"
+                android:paddingVertical="3dp"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- 2. 5-Step Horizontal Progress Stepper (Applied -> Under Review -> Shortlisted -> Interviewed -> Accepted) -->
+        <LinearLayout
+            android:id="@+id/stepperContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical">
+
+            <!-- Circles + Connecting Lines -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp">
+
+                <!-- Step 1 Circle: Applied -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/stepCircle1"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    app:cardBackgroundColor="?attr/colorPrimary"
+                    app:cardCornerRadius="13dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <ImageView
+                        android:id="@+id/stepIcon1"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_check"
+                        app:tint="@color/white" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <View
+                    android:id="@+id/stepLine1"
+                    android:layout_width="0dp"
+                    android:layout_height="2.5dp"
+                    android:layout_marginHorizontal="4dp"
+                    android:layout_weight="1"
+                    android:background="@color/stroke_soft" />
+
+                <!-- Step 2 Circle: Under Review -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/stepCircle2"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    app:cardBackgroundColor="@color/bg_page"
+                    app:cardCornerRadius="13dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/stroke_soft"
+                    app:strokeWidth="1dp">
+
+                    <ImageView
+                        android:id="@+id/stepIcon2"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_schedule"
+                        app:tint="@color/nav_unselected" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <View
+                    android:id="@+id/stepLine2"
+                    android:layout_width="0dp"
+                    android:layout_height="2.5dp"
+                    android:layout_marginHorizontal="4dp"
+                    android:layout_weight="1"
+                    android:background="@color/stroke_soft" />
+
+                <!-- Step 3 Circle: Shortlisted -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/stepCircle3"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    app:cardBackgroundColor="@color/bg_page"
+                    app:cardCornerRadius="13dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/stroke_soft"
+                    app:strokeWidth="1dp">
+
+                    <ImageView
+                        android:id="@+id/stepIcon3"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_check"
+                        app:tint="@color/nav_unselected" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <View
+                    android:id="@+id/stepLine3"
+                    android:layout_width="0dp"
+                    android:layout_height="2.5dp"
+                    android:layout_marginHorizontal="4dp"
+                    android:layout_weight="1"
+                    android:background="@color/stroke_soft" />
+
+                <!-- Step 4 Circle: Interviewed -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/stepCircle4"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    app:cardBackgroundColor="@color/bg_page"
+                    app:cardCornerRadius="13dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/stroke_soft"
+                    app:strokeWidth="1dp">
+
+                    <ImageView
+                        android:id="@+id/stepIcon4"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_event"
+                        app:tint="@color/nav_unselected" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <View
+                    android:id="@+id/stepLine4"
+                    android:layout_width="0dp"
+                    android:layout_height="2.5dp"
+                    android:layout_marginHorizontal="4dp"
+                    android:layout_weight="1"
+                    android:background="@color/stroke_soft" />
+
+                <!-- Step 5 Circle: Accepted -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/stepCircle5"
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    app:cardBackgroundColor="@color/bg_page"
+                    app:cardCornerRadius="13dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/stroke_soft"
+                    app:strokeWidth="1dp">
+
+                    <ImageView
+                        android:id="@+id/stepIcon5"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_check_circle"
+                        app:tint="@color/nav_unselected" />
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Step Labels -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/stepLabel1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="start"
+                    android:text="Applied"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/stepLabel2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.2"
+                    android:gravity="center"
+                    android:text="Under Review"
+                    android:textColor="@color/nav_unselected"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/stepLabel3"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.1"
+                    android:gravity="center"
+                    android:text="Shortlisted"
+                    android:textColor="@color/nav_unselected"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/stepLabel4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.1"
+                    android:gravity="center"
+                    android:text="Interviewed"
+                    android:textColor="@color/nav_unselected"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/stepLabel5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="Accepted"
+                    android:textColor="@color/nav_unselected"
+                    android:textSize="10sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 3. INTERVIEW INVITATION Card (Visible when interview exists or status is interview/interviewed) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardInterviewInvitation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="#F5F7FF"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#C7D2FE"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <!-- Top Row: Icon + INTERVIEW INVITATION + Status Badge -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        app:cardBackgroundColor="@color/tint_indigo"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_gravity="center"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_event"
+                            app:tint="@color/white" />
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:letterSpacing="0.04"
+                                android:text="INTERVIEW INVITATION"
+                                android:textColor="#1E1B4B"
+                                android:textSize="11sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvInterviewActionBadge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:background="@drawable/bg_chip"
+                                android:backgroundTint="@color/tint_indigo_bg"
+                                android:paddingHorizontal="7dp"
+                                android:paddingVertical="2dp"
+                                android:text="• Action Required"
+                                android:textColor="@color/tint_indigo"
+                                android:textSize="10sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvInterviewDateTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="📅 Scheduled by Host Company"
+                            android:textColor="#1E293B"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Location & Notes -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="9dp"
+                    android:background="#E0E7FF" />
+
+                <TextView
+                    android:id="@+id/tvInterviewLocationLine"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Location: —"
+                    android:textColor="#475569"
+                    android:textSize="11.5sp" />
+
+                <TextView
+                    android:id="@+id/tvInterviewNotesLine"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="#64748B"
+                    android:textSize="11.5sp"
+                    android:textStyle="italic"
+                    android:visibility="gone" />
+
+                <!-- Confirm & Reschedule Buttons -->
+                <LinearLayout
+                    android:id="@+id/rowInterviewButtons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="end"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCardConfirmInterview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:minHeight="36dp"
+                        android:paddingHorizontal="14dp"
+                        android:text="✓ Confirm"
+                        android:textSize="11.5sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="10dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCardRescheduleInterview"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:layout_marginStart="8dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:minHeight="36dp"
+                        android:paddingHorizontal="14dp"
+                        android:text="↺ Reschedule"
+                        android:textColor="#334155"
+                        android:textSize="11.5sp"
+                        android:textStyle="bold"
+                        app:backgroundTint="@color/white"
+                        app:cornerRadius="10dp"
+                        app:strokeColor="#CBD5E1" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 4. RECRUITER FEEDBACK Box -->
+        <LinearLayout
+            android:id="@+id/boxUpdate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_chip"
+            android:backgroundTint="@color/bg_page"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <ImageView
+                android:id="@+id/ivUpdateIcon"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_messages"
+                app:tint="?attr/colorOnSurfaceVariant" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvUpdateTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.05"
+                    android:text="RECRUITER FEEDBACK"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvUpdateBody"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Application under evaluation by recruitment team."
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 5. Bottom Action Row (Withdraw on Left | View + CV + Chat on Right) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/btnWithdraw"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingVertical="6dp"
+                android:paddingEnd="8dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_cancel"
+                    app:tint="@color/tint_red" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:text="Withdraw"
+                    android:textColor="@color/tint_red"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- View Details Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnViewDetails"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minHeight="36dp"
+                android:paddingHorizontal="14dp"
+                android:text="👁 View"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/tint_green_bg"
+                app:cornerRadius="10dp" />
+
+            <!-- Chat Button -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnChat"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                app:cardBackgroundColor="@color/bg_page"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/stroke_soft"
+                app:strokeWidth="1dp">
+
+                <ImageView
+                    android:layout_width="17dp"
+                    android:layout_height="17dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_messages"
+                    app:tint="?attr/colorOnSurface" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
