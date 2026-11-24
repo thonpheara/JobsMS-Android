@@ -34,87 +34,54 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="Track &amp; review candidate applications"
+                android:text="Track, review &amp; hold any card to bulk select"
                 android:textAppearance="?attr/textAppearanceBodySmall"
                 android:textColor="@color/nav_unselected"
                 android:textSize="11.5sp" />
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <!-- Notification Bell + Dot -->
+        <FrameLayout
+            android:id="@+id/btnNotifications"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
             android:layout_gravity="end|center_vertical"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:clickable="true"
+            android:focusable="true">
 
-            <!-- Toggle Selection Mode Pill -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnToggleSelectionMode"
-                android:layout_width="wrap_content"
-                android:layout_height="34dp"
-                android:layout_marginEnd="8dp"
-                android:clickable="true"
-                android:focusable="true"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_gravity="center"
                 app:cardBackgroundColor="@color/bg_page"
-                app:cardCornerRadius="17dp"
+                app:cardCornerRadius="19dp"
                 app:cardElevation="0dp"
                 app:strokeColor="@color/stroke_soft"
                 app:strokeWidth="1dp">
 
-                <TextView
-                    android:id="@+id/tvToggleSelectionMode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:paddingHorizontal="12dp"
-                    android:text="☑ Select"
-                    android:textColor="?attr/colorOnSurface"
-                    android:textSize="11.5sp"
-                    android:textStyle="bold" />
+                <ImageView
+                    android:layout_width="19dp"
+                    android:layout_height="19dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_notifications"
+                    app:tint="?attr/colorOnSurface" />
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Notification Bell + Dot -->
-            <FrameLayout
-                android:id="@+id/btnNotifications"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:clickable="true"
-                android:focusable="true">
-
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="38dp"
-                    android:layout_height="38dp"
-                    android:layout_gravity="center"
-                    app:cardBackgroundColor="@color/bg_page"
-                    app:cardCornerRadius="19dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/stroke_soft"
-                    app:strokeWidth="1dp">
-
-                    <ImageView
-                        android:layout_width="19dp"
-                        android:layout_height="19dp"
-                        android:layout_gravity="center"
-                        android:importantForAccessibility="no"
-                        android:src="@drawable/ic_notifications"
-                        app:tint="?attr/colorOnSurface" />
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/dotUnread"
-                    android:layout_width="9dp"
-                    android:layout_height="9dp"
-                    android:layout_gravity="top|end"
-                    android:layout_marginTop="3dp"
-                    android:layout_marginEnd="3dp"
-                    android:visibility="gone"
-                    app:cardBackgroundColor="@color/tint_indigo"
-                    app:cardCornerRadius="4.5dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/bg_card"
-                    app:strokeWidth="1.5dp" />
-            </FrameLayout>
-        </LinearLayout>
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/dotUnread"
+                android:layout_width="9dp"
+                android:layout_height="9dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="3dp"
+                android:layout_marginEnd="3dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/tint_indigo"
+                app:cardCornerRadius="4.5dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/bg_card"
+                app:strokeWidth="1.5dp" />
+        </FrameLayout>
     </FrameLayout>
 
     <View
@@ -544,58 +511,67 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="10dp"
         android:visibility="gone"
-        app:cardBackgroundColor="#FF0F172A"
+        app:cardBackgroundColor="@color/bg_card"
         app:cardCornerRadius="18dp"
-        app:cardElevation="8dp"
-        app:strokeColor="#30FFFFFF"
-        app:strokeWidth="1dp">
+        app:cardElevation="10dp"
+        app:strokeColor="?attr/colorPrimary"
+        app:strokeWidth="1.5dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp">
+            android:paddingVertical="12dp">
 
             <!-- Row 1 of Bulk Bar: Selected Count + Select All + Close -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="10dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_marginEnd="8dp"
+                    app:cardBackgroundColor="?attr/colorPrimary"
+                    app:cardCornerRadius="4dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp" />
 
                 <TextView
                     android:id="@+id/tvBulkCount"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="0 Selected"
-                    android:textColor="@color/white"
-                    android:textSize="12.5sp"
+                    android:text="0 Candidates Selected"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/btnBulkSelectAll"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
+                    android:layout_marginEnd="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:focusable="true"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="2dp"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="4dp"
                     android:text="Select All"
-                    android:textColor="#6EE7B7"
-                    android:textSize="11.5sp"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="12sp"
                     android:textStyle="bold" />
 
                 <FrameLayout
                     android:id="@+id/btnBulkClear"
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:focusable="true">
@@ -606,11 +582,11 @@
                         android:layout_gravity="center"
                         android:importantForAccessibility="no"
                         android:src="@drawable/ic_close"
-                        app:tint="#94A3B8" />
+                        app:tint="@color/nav_unselected" />
                 </FrameLayout>
             </LinearLayout>
 
-            <!-- Row 2 of Bulk Bar: Action Buttons -->
+            <!-- Row 2 of Bulk Bar: Soft Pastel Tonal Action Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -621,68 +597,92 @@
                     android:id="@+id/btnBulkReview"
                     style="@style/Widget.Material3.Button.TonalButton"
                     android:layout_width="0dp"
-                    android:layout_height="34dp"
+                    android:layout_height="36dp"
                     android:layout_weight="1"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:minWidth="0dp"
-                    android:paddingHorizontal="6dp"
+                    android:paddingHorizontal="4dp"
                     android:text="Review"
-                    android:textColor="@color/white"
+                    android:textColor="@color/tint_amber"
                     android:textSize="11sp"
-                    app:backgroundTint="@color/tint_amber"
-                    app:cornerRadius="10dp" />
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/tint_amber_bg"
+                    app:cornerRadius="10dp"
+                    app:icon="@drawable/ic_visibility"
+                    app:iconGravity="textStart"
+                    app:iconPadding="4dp"
+                    app:iconSize="13dp"
+                    app:iconTint="@color/tint_amber" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnBulkShortlist"
                     style="@style/Widget.Material3.Button.TonalButton"
                     android:layout_width="0dp"
-                    android:layout_height="34dp"
+                    android:layout_height="36dp"
                     android:layout_marginStart="6dp"
                     android:layout_weight="1"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:minWidth="0dp"
-                    android:paddingHorizontal="6dp"
+                    android:paddingHorizontal="4dp"
                     android:text="Shortlist"
-                    android:textColor="@color/white"
+                    android:textColor="@color/tint_indigo"
                     android:textSize="11sp"
-                    app:backgroundTint="@color/tint_indigo"
-                    app:cornerRadius="10dp" />
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/tint_indigo_bg"
+                    app:cornerRadius="10dp"
+                    app:icon="@drawable/ic_star"
+                    app:iconGravity="textStart"
+                    app:iconPadding="4dp"
+                    app:iconSize="13dp"
+                    app:iconTint="@color/tint_indigo" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnBulkAccept"
                     style="@style/Widget.Material3.Button.TonalButton"
                     android:layout_width="0dp"
-                    android:layout_height="34dp"
+                    android:layout_height="36dp"
                     android:layout_marginStart="6dp"
                     android:layout_weight="1"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:minWidth="0dp"
-                    android:paddingHorizontal="6dp"
+                    android:paddingHorizontal="4dp"
                     android:text="Accept"
-                    android:textColor="@color/white"
+                    android:textColor="@color/tint_green"
                     android:textSize="11sp"
-                    app:backgroundTint="?attr/colorPrimary"
-                    app:cornerRadius="10dp" />
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/tint_green_bg"
+                    app:cornerRadius="10dp"
+                    app:icon="@drawable/ic_check"
+                    app:iconGravity="textStart"
+                    app:iconPadding="4dp"
+                    app:iconSize="13dp"
+                    app:iconTint="@color/tint_green" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnBulkDecline"
                     style="@style/Widget.Material3.Button.TonalButton"
                     android:layout_width="0dp"
-                    android:layout_height="34dp"
+                    android:layout_height="36dp"
                     android:layout_marginStart="6dp"
                     android:layout_weight="1"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:minWidth="0dp"
-                    android:paddingHorizontal="6dp"
+                    android:paddingHorizontal="4dp"
                     android:text="Reject"
-                    android:textColor="@color/white"
+                    android:textColor="@color/tint_red"
                     android:textSize="11sp"
-                    app:backgroundTint="@color/tint_red"
-                    app:cornerRadius="10dp" />
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/tint_red_bg"
+                    app:cornerRadius="10dp"
+                    app:icon="@drawable/ic_close"
+                    app:iconGravity="textStart"
+                    app:iconPadding="4dp"
+                    app:iconSize="13dp"
+                    app:iconTint="@color/tint_red" />
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

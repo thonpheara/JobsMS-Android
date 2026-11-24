@@ -88,8 +88,6 @@ public class CompanyApplicantsActivity extends AppCompatActivity {
     private TextView tvRoleFilterLabel;
     private EditText etSearch;
 
-    private MaterialCardView btnToggleSelectionMode;
-    private TextView tvToggleSelectionMode;
     private MaterialCardView pillAll, pillPending, pillReview, pillShortlisted, pillInterview, pillAccepted, pillDeclined;
     private TextView tvPillAll, tvPillPending, tvPillReview, tvPillShortlisted, tvPillInterview, tvPillAccepted, tvPillDeclined;
 
@@ -101,6 +99,7 @@ public class CompanyApplicantsActivity extends AppCompatActivity {
     private View boxBulkActions;
     private TextView tvBulkCount;
     private TextView btnBulkSelectAll;
+    private View btnBulkReview, btnBulkShortlist, btnBulkAccept, btnBulkDecline;
 
     private String currentFilter = FILTER_ALL;
     private String oppTypeFilter = "all"; // "all", "internship", "job"
@@ -146,9 +145,6 @@ public class CompanyApplicantsActivity extends AppCompatActivity {
         tvRoleFilterLabel = findViewById(R.id.tvRoleFilterLabel);
         etSearch = findViewById(R.id.etSearch);
 
-        btnToggleSelectionMode = findViewById(R.id.btnToggleSelectionMode);
-        tvToggleSelectionMode = findViewById(R.id.tvToggleSelectionMode);
-
         pillAll = findViewById(R.id.pillAll);
         pillPending = findViewById(R.id.pillPending);
         pillReview = findViewById(R.id.pillReview);
@@ -170,23 +166,19 @@ public class CompanyApplicantsActivity extends AppCompatActivity {
         btnBulkSelectAll = findViewById(R.id.btnBulkSelectAll);
 
         updateActiveFilterBadgeStyle();
-        updateSelectionModeHeaderStyle();
 
         // ── Bulk Action Listeners ────────────────────────────────────────────
-        if (btnToggleSelectionMode != null) {
-            btnToggleSelectionMode.setOnClickListener(v -> toggleSelectionMode());
-        }
         if (btnBulkSelectAll != null) {
             btnBulkSelectAll.setOnClickListener(v -> toggleSelectAllFiltered());
         }
-        View btnBulkReview = findViewById(R.id.btnBulkReview);
+        btnBulkReview = findViewById(R.id.btnBulkReview);
         if (btnBulkReview != null) btnBulkReview.setOnClickListener(v -> performBulkStatus("under_review"));
-        View btnBulkShortlist = findViewById(R.id.btnBulkShortlist);
+        btnBulkShortlist = findViewById(R.id.btnBulkShortlist);
         if (btnBulkShortlist != null) btnBulkShortlist.setOnClickListener(v -> performBulkStatus("shortlisted"));
-        View btnBulkAccept = findViewById(R.id.btnBulkAccept);
-        if (btnBulkAccept != null) btnBulkAccept.setOnClickListener(v -> performBulkStatus("accepted"));
-        View btnBulkDecline = findViewById(R.id.btnBulkDecline);
-        if (btnBulkDecline != null) btnBulkDecline.setOnClickListener(v -> performBulkStatus("rejected"));
+        btnBulkAccept = findViewById(R.id.btnBulkAccept);
+        if (btnBulkAccept != null) btnBulkAccept.setOnClickListener(v -> confirmAndPerformBulkStatus("accepted", "Accept"));
+        btnBulkDecline = findViewById(R.id.btnBulkDecline);
+        if (btnBulkDecline != null) btnBulkDecline.setOnClickListener(v -> confirmAndPerformBulkStatus("rejected", "Reject"));
         View btnBulkClear = findViewById(R.id.btnBulkClear);
         if (btnBulkClear != null) {
             btnBulkClear.setOnClickListener(v -> exitSelectionMode());
@@ -327,40 +319,11 @@ public class CompanyApplicantsActivity extends AppCompatActivity {
 
     // ── Selection Mode Management ────────────────────────────────────────────
 
-    private void toggleSelectionMode() {
-        if (isSelectionMode) {
-            exitSelectionMode();
-        } else {
-            isSelectionMode = true;
-            updateSelectionModeHeaderStyle();
-            updateBulkActionBar();
-            applyFilterAndRender();
-        }
-    }
-
     private void exitSelectionMode() {
         isSelectionMode = false;
         selectedApplicantIds.clear();
-        updateSelectionModeHeaderStyle();
         updateBulkActionBar();
         applyFilterAndRender();
-    }
-
-    private void updateSelectionModeHeaderStyle() {
-        if (btnToggleSelectionMode == null || tvToggleSelectionMode == null) return;
-        int primaryGreen = MaterialColors.getColor(btnToggleSelectionMode, androidx.appcompat.R.attr.colorPrimary);
-        if (isSelectionMode) {
-            btnToggleSelectionMode.setCardBackgroundColor(ContextCompat.getColor(this, R.color.tint_green_bg));
-            btnToggleSelectionMode.setStrokeColor(ColorStateList.valueOf(primaryGreen));
-            tvToggleSelectionMode.setText("✕ Done");
-            tvToggleSelectionMode.setTextColor(primaryGreen);
-        } else {
-            btnToggleSelectionMode.setCardBackgroundColor(ContextCompat.getColor(this, R.color.bg_page));
-            btnToggleSelectionMode.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.stroke_soft)));
-            tvToggleSelectionMode.setText("☑ Select");
-            tvToggleSelectionMode.setTextColor(MaterialColors.getColor(
-                    btnToggleSelectionMode, com.google.android.material.R.attr.colorOnSurface));
-        }
     }
 
     // ── Unified Filter & Sort Dialog ─────────────────────────────────────────
@@ -614,7 +577,6 @@ public class CompanyApplicantsActivity extends AppCompatActivity {
                 if (id > 0) selectedApplicantIds.add(id);
             }
         }
-        updateSelectionModeHeaderStyle();
         updateBulkActionBar();
         applyFilterAndRender();
     }
@@ -829,7 +791,6 @@ public class CompanyApplicantsActivity extends AppCompatActivity {
         View boxInterviewInfo = card.findViewById(R.id.boxInterviewInfo);
         TextView tvInterviewInfo = card.findViewById(R.id.tvInterviewInfo);
         TextView tvInterviewConfirm = card.findViewById(R.id.tvInterviewConfirm);
-        View btnQuickProfile = card.findViewById(R.id.btnQuickProfile);
         View btnQuickChat = card.findViewById(R.id.btnQuickChat);
         MaterialButton btnAction = card.findViewById(R.id.btnAction);
 
@@ -945,10 +906,6 @@ public class CompanyApplicantsActivity extends AppCompatActivity {
         if (avatarView != null) avatarView.setOnClickListener(openStudentProfile);
         ivAvatar.setOnClickListener(openStudentProfile);
         tvInitials.setOnClickListener(openStudentProfile);
-        if (btnQuickProfile != null) {
-            btnQuickProfile.setVisibility(finalStudentId > 0 ? View.VISIBLE : View.GONE);
-            btnQuickProfile.setOnClickListener(openStudentProfile);
-        }
 
         // Interview details banner if scheduled
         JsonObject interview = StudentApplicationsActivity.extractInterview(app);
@@ -1007,7 +964,6 @@ public class CompanyApplicantsActivity extends AppCompatActivity {
             if (!isSelectionMode) {
                 isSelectionMode = true;
                 if (appId > 0) selectedApplicantIds.add(appId);
-                updateSelectionModeHeaderStyle();
                 updateBulkActionBar();
                 applyFilterAndRender();
                 return true;
@@ -1036,7 +992,13 @@ public class CompanyApplicantsActivity extends AppCompatActivity {
         if (isSelectionMode || count > 0) {
             boxBulkActions.setVisibility(View.VISIBLE);
             if (tvBulkCount != null) {
-                tvBulkCount.setText(count + (count == 1 ? " Candidate Selected" : " Candidates Selected"));
+                if (count == 0) {
+                    tvBulkCount.setText("0 Candidates Selected");
+                    tvBulkCount.setAlpha(0.75f);
+                } else {
+                    tvBulkCount.setText(count + (count == 1 ? " Candidate Selected" : " Candidates Selected"));
+                    tvBulkCount.setAlpha(1.0f);
+                }
             }
             if (btnBulkSelectAll != null) {
                 boolean allSelected = !filteredApplicants.isEmpty();
@@ -1048,10 +1010,37 @@ public class CompanyApplicantsActivity extends AppCompatActivity {
                     }
                 }
                 btnBulkSelectAll.setText(allSelected ? "Deselect All" : "Select All (" + filteredApplicants.size() + ")");
+                btnBulkSelectAll.setVisibility(filteredApplicants.isEmpty() ? View.GONE : View.VISIBLE);
             }
+            boolean hasSelection = count > 0;
+            setBulkButtonState(btnBulkReview, hasSelection);
+            setBulkButtonState(btnBulkShortlist, hasSelection);
+            setBulkButtonState(btnBulkAccept, hasSelection);
+            setBulkButtonState(btnBulkDecline, hasSelection);
         } else {
             boxBulkActions.setVisibility(View.GONE);
         }
+    }
+
+    private void setBulkButtonState(@Nullable View btn, boolean enabled) {
+        if (btn == null) return;
+        btn.setEnabled(enabled);
+        btn.setAlpha(enabled ? 1.0f : 0.42f);
+    }
+
+    private void confirmAndPerformBulkStatus(String targetStatus, String actionVerb) {
+        int count = selectedApplicantIds.size();
+        if (count == 0) {
+            toast("Tap candidates to select them first.");
+            return;
+        }
+        String candidateNoun = count == 1 ? "1 candidate" : (count + " candidates");
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(actionVerb + " " + candidateNoun + "?")
+                .setMessage("Are you sure you want to mark the selected " + candidateNoun + " as " + targetStatus + "?")
+                .setPositiveButton("Yes, " + actionVerb, (dialog, which) -> performBulkStatus(targetStatus))
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void performBulkStatus(String targetStatus) {
@@ -1140,30 +1129,42 @@ public class CompanyApplicantsActivity extends AppCompatActivity {
             case "shortlisted":
                 btn.setText("Schedule");
                 btn.setIconResource(R.drawable.ic_event);
-                btn.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#FF0F172A")));
-                btn.setTextColor(Color.WHITE);
-                btn.setIconTint(ColorStateList.valueOf(Color.WHITE));
-                break;
-            case "interview":
-            case "interview_scheduled":
-            case "interviewed":
-                btn.setText("Details");
-                btn.setIconResource(R.drawable.ic_event);
                 int indigo = ContextCompat.getColor(this, R.color.tint_indigo);
                 btn.setBackgroundTintList(ColorStateList.valueOf(
                         ContextCompat.getColor(this, R.color.tint_indigo_bg)));
                 btn.setTextColor(indigo);
                 btn.setIconTint(ColorStateList.valueOf(indigo));
                 break;
-            default:
-                btn.setText("Update Status");
-                btn.setIconResource(R.drawable.ic_visibility);
-                int onSurface = MaterialColors.getColor(btn,
-                        com.google.android.material.R.attr.colorOnSurface);
+            case "interview":
+            case "interview_scheduled":
+            case "interviewed":
+                btn.setText("Interview");
+                btn.setIconResource(R.drawable.ic_event);
+                int indigoInt = ContextCompat.getColor(this, R.color.tint_indigo);
                 btn.setBackgroundTintList(ColorStateList.valueOf(
                         ContextCompat.getColor(this, R.color.tint_indigo_bg)));
-                btn.setTextColor(onSurface);
-                btn.setIconTint(ColorStateList.valueOf(onSurface));
+                btn.setTextColor(indigoInt);
+                btn.setIconTint(ColorStateList.valueOf(indigoInt));
+                break;
+            case "accepted":
+            case "rejected":
+            case "withdrawn":
+                btn.setText("Details");
+                btn.setIconResource(R.drawable.ic_visibility);
+                int slate = ContextCompat.getColor(this, R.color.nav_unselected);
+                btn.setBackgroundTintList(ColorStateList.valueOf(
+                        ContextCompat.getColor(this, R.color.bg_page)));
+                btn.setTextColor(slate);
+                btn.setIconTint(ColorStateList.valueOf(slate));
+                break;
+            default:
+                btn.setText("Review");
+                btn.setIconResource(R.drawable.ic_visibility);
+                int green = ContextCompat.getColor(this, R.color.tint_green);
+                btn.setBackgroundTintList(ColorStateList.valueOf(
+                        ContextCompat.getColor(this, R.color.tint_green_bg)));
+                btn.setTextColor(green);
+                btn.setIconTint(ColorStateList.valueOf(green));
                 break;
         }
     }

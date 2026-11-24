@@ -354,34 +354,6 @@ public class ReviewApplicantBottomSheet extends BottomSheetDialogFragment {
             @Override
             public void onError(@NonNull ApiError error) {
                 if (!isAdded()) return;
-                // Fallback if backend validation still expects "reviewed" instead of "under_review"
-                if (error.code == 422 && "under_review".equals(newStatus)) {
-                    repo.updateApplicantStatus(appId, "reviewed", existingNotes, new CompanyRepository.JsonResult() {
-                        @Override
-                        public void onSuccess(@NonNull JsonObject body) {
-                            if (!isAdded()) return;
-                            Toast.makeText(requireContext(), successMsg, Toast.LENGTH_SHORT).show();
-                            if (listener != null) listener.onApplicantUpdated();
-                            dismissAllowingStateLoss();
-                        }
-
-                        @Override
-                        public void onError(@NonNull ApiError err2) {
-                            if (!isAdded()) return;
-                            btnSaveStatus.setEnabled(true);
-                            btnSaveStatus.setText("Save Status Change  →");
-                            Toast.makeText(requireContext(), err2.message, Toast.LENGTH_LONG).show();
-                        }
-                    });
-                    return;
-                }
-                // Fallback if backend requires scheduling an interview to set "interviewed"
-                if (error.code == 422 && "interviewed".equals(newStatus)) {
-                    btnSaveStatus.setEnabled(true);
-                    btnSaveStatus.setText("Save Status Change  →");
-                    showScheduleInterviewDialog(appId, candidateName, defaultLocation);
-                    return;
-                }
                 btnSaveStatus.setEnabled(true);
                 btnSaveStatus.setText("Save Status Change  →");
                 Toast.makeText(requireContext(), error.message, Toast.LENGTH_LONG).show();
