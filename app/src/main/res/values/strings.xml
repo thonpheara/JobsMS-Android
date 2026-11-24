@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">InternshipMS</string>
-    <string name="system_name">INTERNSHIP MANAGEMENT SYSTEM</string>
+    <string name="app_name">JobsMS</string>
+    <string name="system_name">JOB MANAGEMENT SYSTEM</string>
 
     <string name="login_title">Login</string>
     <string name="login_subtitle">Welcome back! Please enter your credentials</string>
