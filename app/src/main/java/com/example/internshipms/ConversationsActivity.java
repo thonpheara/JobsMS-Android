@@ -1,5 +1,6 @@
 package com.example.internshipms;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,6 +15,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -46,6 +48,7 @@ public class ConversationsActivity extends AppCompatActivity {
     private static final String FILTER_ALL = "all";
     private static final String FILTER_UNREAD = "unread";
     private static final String FILTER_INTERVIEWS = "interviews";
+    private static final String FILTER_HIRED = "hired";
 
     private StudentRepository repository;
     private Call<JsonObject> convosCall;
@@ -53,6 +56,7 @@ public class ConversationsActivity extends AppCompatActivity {
     private String selectedFilter = FILTER_ALL;
     private EditText etSearch;
     private ChipGroup chipGroup;
+    private boolean isCompanyRole = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +77,14 @@ public class ConversationsActivity extends AppCompatActivity {
 
         repository = new StudentRepository(this);
         boolean isCompany = "company".equalsIgnoreCase(session.getRole());
+        isCompanyRole = isCompany;
+
+        TextView tvMessagesSubtitle = findViewById(R.id.tvMessagesSubtitle);
+        if (tvMessagesSubtitle != null) {
+            tvMessagesSubtitle.setText(isCompany
+                    ? "Communicate with applicants & coordinate interviews"
+                    : "Direct messages with host company recruiters");
+        }
 
         findViewById(R.id.btnNotifications).setOnClickListener(v ->
                 NotificationsActivity.launch(this));
@@ -101,6 +113,9 @@ public class ConversationsActivity extends AppCompatActivity {
         etSearch = findViewById(R.id.etSearchConversations);
         chipGroup = findViewById(R.id.chipGroupConversations);
         if (etSearch != null) {
+            etSearch.setHint(isCompany
+                    ? "Search candidate, role, or message..."
+                    : "Search company, role, or message...");
             etSearch.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -235,16 +250,25 @@ public class ConversationsActivity extends AppCompatActivity {
         int total = allConversations.size();
         int unread = 0;
         int interviews = 0;
+        int hired = 0;
         for (JsonObject c : allConversations) {
             if (Json.integer(c, 0, "unread_count") > 0) unread++;
-            if (isInterviewOrApplication(c)) interviews++;
+            if (isInterviewStage(c)) interviews++;
+            if (isHiredStage(c)) hired++;
         }
 
-        String[][] defs = {
-                {FILTER_ALL, "All Messages  " + total},
-                {FILTER_UNREAD, "Unread  " + unread},
-                {FILTER_INTERVIEWS, "Interviews  " + interviews}
-        };
+        String[][] defs = isCompanyRole
+                ? new String[][]{
+                        {FILTER_ALL, "All (" + total + ")"},
+                        {FILTER_UNREAD, "Unread (" + unread + ")"},
+                        {FILTER_INTERVIEWS, "Interviewing (" + interviews + ")"},
+                        {FILTER_HIRED, "Hired (" + hired + ")"}
+                }
+                : new String[][]{
+                        {FILTER_ALL, "All Messages (" + total + ")"},
+                        {FILTER_UNREAD, "Unread (" + unread + ")"},
+                        {FILTER_INTERVIEWS, "Interviews (" + interviews + ")"}
+                };
 
         chipGroup.removeAllViews();
         for (String[] def : defs) {
@@ -258,14 +282,26 @@ public class ConversationsActivity extends AppCompatActivity {
         }
     }
 
-    private static boolean isInterviewOrApplication(JsonObject convo) {
-        if (Json.integer(convo, 0, "application_id") > 0) return true;
+    private static boolean isInterviewStage(JsonObject convo) {
+        String appStatus = Json.str(convo, "", "application_status").toLowerCase(Locale.ROOT);
+        if ("shortlisted".equals(appStatus) || "interviewed".equals(appStatus)
+                || "interview".equals(appStatus) || "interview_scheduled".equals(appStatus)) {
+            return true;
+        }
+        if (convo.has("has_interview") && !convo.get("has_interview").isJsonNull()
+                && convo.get("has_interview").getAsBoolean()) {
+            return true;
+        }
         String subject = Json.str(convo, "", "post_title", "subject").toLowerCase(Locale.ROOT);
         JsonObject latestMsg = Json.obj(convo, "latest_message");
         String body = latestMsg != null
                 ? Json.str(latestMsg, "", "body").toLowerCase(Locale.ROOT) : "";
-        return subject.contains("interview") || subject.contains("intern")
-                || body.contains("interview") || body.contains("schedule");
+        return subject.contains("interview") || body.contains("interview") || body.contains("schedule");
+    }
+
+    private static boolean isHiredStage(JsonObject convo) {
+        String appStatus = Json.str(convo, "", "application_status").toLowerCase(Locale.ROOT);
+        return "accepted".equals(appStatus) || "approved".equals(appStatus);
     }
 
     private void render() {
@@ -284,7 +320,8 @@ public class ConversationsActivity extends AppCompatActivity {
         for (JsonObject convo : allConversations) {
             int unreadCount = Json.integer(convo, 0, "unread_count");
             if (FILTER_UNREAD.equals(selectedFilter) && unreadCount <= 0) continue;
-            if (FILTER_INTERVIEWS.equals(selectedFilter) && !isInterviewOrApplication(convo)) continue;
+            if (FILTER_INTERVIEWS.equals(selectedFilter) && !isInterviewStage(convo)) continue;
+            if (FILTER_HIRED.equals(selectedFilter) && !isHiredStage(convo)) continue;
 
             if (!query.isEmpty()) {
                 JsonObject recipient = Json.obj(convo, "recipient");
@@ -301,7 +338,21 @@ public class ConversationsActivity extends AppCompatActivity {
             container.addView(buildRow(convo, container));
             shown++;
         }
-        findViewById(R.id.tvEmpty).setVisibility(shown == 0 ? View.VISIBLE : View.GONE);
+        TextView tvEmpty = findViewById(R.id.tvEmpty);
+        if (tvEmpty != null) {
+            if (shown == 0) {
+                tvEmpty.setVisibility(View.VISIBLE);
+                if (!allConversations.isEmpty()) {
+                    tvEmpty.setText("No conversations match your current filter or search.");
+                } else {
+                    tvEmpty.setText(isCompanyRole
+                            ? "No active conversations yet.\nTap the chat icon on any candidate card in Applicants to start messaging!"
+                            : "No conversations yet.\nStart a conversation with a recruiter from My Applications!");
+                }
+            } else {
+                tvEmpty.setVisibility(View.GONE);
+            }
+        }
     }
 
     private View buildRow(JsonObject convo, ViewGroup parent) {
@@ -310,16 +361,22 @@ public class ConversationsActivity extends AppCompatActivity {
         int convoId = Json.integer(convo, 0, "id");
         int appId = Json.integer(convo, 0, "application_id");
         int unreadCount = Json.integer(convo, 0, "unread_count");
+        String appStatus = Json.str(convo, "pending", "application_status").toLowerCase(Locale.ROOT);
         JsonObject recipient = Json.obj(convo, "recipient");
-        String name = Json.str(recipient, "Company", "display_name", "name");
+        String defaultName = isCompanyRole ? "Candidate" : "Company";
+        String name = Json.str(recipient, defaultName, "display_name", "name");
         String avatarUrl = AvatarLoader.extractUrl(recipient, null);
         String subject = Json.str(convo, "Internship Application", "post_title", "subject");
         String lastAt = Json.str(convo, null, "last_message_at");
 
         JsonObject latestMsg = Json.obj(convo, "latest_message");
-        String snippet = latestMsg != null
-                ? Json.str(latestMsg, "Start this conversation...", "body")
-                : "Start this conversation...";
+        String snippet = "Start this conversation...";
+        if (latestMsg != null) {
+            String rawBody = Json.str(latestMsg, "Start this conversation...", "body");
+            boolean isMe = latestMsg.has("is_me") && !latestMsg.get("is_me").isJsonNull()
+                    && latestMsg.get("is_me").getAsBoolean();
+            snippet = isMe ? "You: " + rawBody : rawBody;
+        }
 
         MaterialCardView avatarCard = row.findViewById(R.id.avatarCard);
         TextView tvInitials = row.findViewById(R.id.tvInitials);
@@ -343,6 +400,33 @@ public class ConversationsActivity extends AppCompatActivity {
 
         ((TextView) row.findViewById(R.id.tvName)).setText(name);
         ((TextView) row.findViewById(R.id.tvTag1)).setText(subject);
+
+        TextView tvStatusTag = row.findViewById(R.id.tvStatusTag);
+        if (tvStatusTag != null) {
+            if ("accepted".equals(appStatus)) {
+                tvStatusTag.setVisibility(View.VISIBLE);
+                tvStatusTag.setText("Hired ✓");
+                tvStatusTag.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tint_green)));
+                tvStatusTag.setTextColor(ContextCompat.getColor(this, R.color.white));
+            } else if ("interviewed".equals(appStatus) || "interview".equals(appStatus)) {
+                tvStatusTag.setVisibility(View.VISIBLE);
+                tvStatusTag.setText("Interview");
+                tvStatusTag.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tint_indigo_bg)));
+                tvStatusTag.setTextColor(ContextCompat.getColor(this, R.color.tint_indigo));
+            } else if ("shortlisted".equals(appStatus)) {
+                tvStatusTag.setVisibility(View.VISIBLE);
+                tvStatusTag.setText("Shortlisted");
+                tvStatusTag.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tint_indigo_bg)));
+                tvStatusTag.setTextColor(ContextCompat.getColor(this, R.color.tint_indigo));
+            } else if ("rejected".equals(appStatus)) {
+                tvStatusTag.setVisibility(View.VISIBLE);
+                tvStatusTag.setText("Rejected");
+                tvStatusTag.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tint_red_bg)));
+                tvStatusTag.setTextColor(ContextCompat.getColor(this, R.color.tint_red));
+            } else {
+                tvStatusTag.setVisibility(View.GONE);
+            }
+        }
 
         TextView tvTime = row.findViewById(R.id.tvTime);
         tvTime.setText(shortRelativeTime(lastAt));

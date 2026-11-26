@@ -29,11 +29,12 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tvMessagesSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Direct messages with recruiters"
                 android:textColor="@color/nav_unselected"
-                android:textSize="11sp" />
+                android:textSize="11.5sp" />
         </LinearLayout>
 
         <LinearLayout
