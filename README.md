@@ -17,17 +17,22 @@ An enterprise-grade native Android mobile application for managing **Internships
 - **Real-Time Messaging & Notifications**: Direct chat with company recruiters and instant push/in-app notifications.
 
 ### 🏢 Company / Recruiter Portal
-- **Company Dashboard**: Overview of active job postings, candidate pipeline metrics, unread messages, and quick access to interviews and hiring reports.
+- **Company Dashboard**: Overview of active job/internship postings, candidate pipeline metrics with live placement rate, verification status alerts, upcoming interviews preview, reschedule request indicators, and quick access to **Post Opportunity**, **Interviews**, and **Hiring Reports**.
 - **Job Postings Management**: Create, edit, duplicate, close/reopen, and submit job or internship postings (`Draft`, `Pending Review`, `Approved`, `Rejected`, `Closed`) with full support for experience levels, duration, salary ranges, and work modes.
 - **Job Details & Pipeline Distribution**: View applicant status breakdown, collapsible role overview, and quick actions.
 - **Applicants Management**:
   - Filter candidates by status, opportunity type (`🎓 Internships` / `💼 Jobs`), specific role, or interview reschedule requests.
   - Sort candidates by **Newest Applied** or **★ Highest GPA First**.
-  - **Clean Selection Mode & Bulk Actions**: Long-press or tap `☑ Select` to batch-update candidate statuses (`Review`, `Shortlist`, `Accept`, `Reject`).
+  - **Clean Selection Mode & Bulk Actions**: Long-press any candidate card to open the floating Bulk Action Bar and batch-update candidate statuses (`Review`, `Shortlist`, `Accept`, `Reject`) with confirmation dialogs for final decisions.
+  - **Smart Card Actions**: Dynamic status-aware action buttons (`Review`, `Schedule`, `Interview`, `Details`) and quick-chat access.
 - **Applicant Profile**: View full academic & contact credentials, collapsible technical skills, cover letters, internal evaluation notes, and view/download official PDF resumes.
+- **Direct Messaging & Chat**:
+  - Filter conversations by `All`, `Unread`, `Interviewing`, and `Hired` with status badges.
+  - Role-aware chat header with online indicator, tap-to-view profile, and in-chat candidacy stage changer.
+  - Pinned interview context banner with one-tap `Join Call`, Quick Reply templates, date separators, clickable URLs, and read receipts (`Sent ✓` / `Read ✓✓`).
 - **Interview Scheduling & Management**: Schedule in-person or online video interviews (Google Meet / Zoom), handle candidate reschedule requests, and mark interview outcomes.
 - **Hiring Reports**: Filterable recruitment analytics and conversion rate tracking.
-- **Company Profile & Branding**: Upload company logo and cover banner with profile completeness tracking.
+- **Company Profile & Branding**: Upload company logo and cover banner, track 9-point profile completeness with clickable missing-item chips, view verification status alerts, and update account password with a live security checklist.
 
 ---
 
