@@ -45,7 +45,7 @@ An enterprise-grade native Android mobile application for managing **Internships
 | **Networking** | Retrofit 2, OkHttp 3 (with Logging & Bearer Token Auth Interceptor) |
 | **JSON Parsing** | Google Gson |
 | **Authentication** | Laravel Sanctum Bearer Token (`SessionManager` with `SharedPreferences`) |
-| **Backend API** | Laravel 11 RESTful API ([thonpheara/InternshipMS](https://github.com/thonpheara/InternshipMS)) |
+| **Backend API** | Laravel 11 RESTful API ([thonpheara/JobsMS](https://github.com/thonpheara/JobsMS)) |
 
 ---
 
@@ -54,7 +54,7 @@ An enterprise-grade native Android mobile application for managing **Internships
 ### 1. Prerequisites
 - **Android Studio** (Ladybug / Koala or newer recommended)
 - **Android SDK** (Min SDK 24 / Target SDK 35)
-- Running instance of the **Laravel Backend API** ([thonpheara/InternshipMS](https://github.com/thonpheara/InternshipMS))
+- Running instance of the **Laravel Backend API** ([thonpheara/JobsMS](https://github.com/thonpheara/JobsMS))
 
 ### 2. Clone the Repository
 ```bash
