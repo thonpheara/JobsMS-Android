@@ -30,12 +30,17 @@ import com.example.internshipms.repository.CompanyRepository;
 import com.example.internshipms.session.SessionManager;
 import com.example.internshipms.view.PullRefreshScrollView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.gson.JsonObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class CompanyProfileActivity extends AppCompatActivity {
@@ -57,6 +62,14 @@ public class CompanyProfileActivity extends AppCompatActivity {
     private TextView tvVerifiedBadge;
     private TextView tvCompletenessPercent;
     private LinearProgressIndicator progressCompleteness;
+    private ChipGroup chipGroupMissing;
+    private TextView tvCompletenessDone;
+
+    private MaterialCardView cardVerificationAlert;
+    private MaterialCardView iconVerificationAlertBox;
+    private ImageView ivVerificationAlertIcon;
+    private TextView tvVerificationAlertTitle;
+    private TextView tvVerificationAlertBody;
 
     private TextView tvStatActivePosts;
     private TextView tvStatTotalApplicants;
@@ -71,6 +84,7 @@ public class CompanyProfileActivity extends AppCompatActivity {
 
     private JsonObject currentCompany;
     private String currentWebsiteUrl;
+    private int currentActivePostsCount = 0;
 
     private final ActivityResultLauncher<String> logoPicker =
             registerForActivityResult(new ActivityResultContracts.GetContent(), this::onLogoPicked);
@@ -110,6 +124,14 @@ public class CompanyProfileActivity extends AppCompatActivity {
         tvVerifiedBadge = findViewById(R.id.tvVerifiedBadge);
         tvCompletenessPercent = findViewById(R.id.tvCompletenessPercent);
         progressCompleteness = findViewById(R.id.progressCompleteness);
+        chipGroupMissing = findViewById(R.id.chipGroupMissing);
+        tvCompletenessDone = findViewById(R.id.tvCompletenessDone);
+
+        cardVerificationAlert = findViewById(R.id.cardVerificationAlert);
+        iconVerificationAlertBox = findViewById(R.id.iconVerificationAlertBox);
+        ivVerificationAlertIcon = findViewById(R.id.ivVerificationAlertIcon);
+        tvVerificationAlertTitle = findViewById(R.id.tvVerificationAlertTitle);
+        tvVerificationAlertBody = findViewById(R.id.tvVerificationAlertBody);
 
         tvStatActivePosts = findViewById(R.id.tvStatActivePosts);
         tvStatTotalApplicants = findViewById(R.id.tvStatTotalApplicants);
@@ -252,6 +274,7 @@ public class CompanyProfileActivity extends AppCompatActivity {
                     int activePosts = Json.integer(stats, 0, "active_posts", "active_posts_count", "total_posts");
                     int totalApplicants = Json.integer(stats, 0, "total_applicants");
                     int accepted = Json.integer(stats, 0, "accepted");
+                    currentActivePostsCount = activePosts;
                     tvStatActivePosts.setText(String.valueOf(activePosts));
                     tvStatTotalApplicants.setText(String.valueOf(totalApplicants));
                     tvStatAccepted.setText(String.valueOf(accepted));
@@ -310,11 +333,18 @@ public class CompanyProfileActivity extends AppCompatActivity {
         String contactPhone = Json.str(company, null, "contact_phone");
         String description = Json.str(company, null, "description");
         String verificationStatus = Json.str(company, "pending", "verification_status");
+        String rejectionReason = Json.str(company, null, "rejection_reason");
+        boolean isRejected = "rejected".equalsIgnoreCase(verificationStatus);
         boolean isVerified = "verified".equalsIgnoreCase(verificationStatus)
                 || "approved".equalsIgnoreCase(verificationStatus)
                 || (company.has("is_verified")
                 && !company.get("is_verified").isJsonNull()
                 && company.get("is_verified").getAsBoolean());
+
+        int apiActivePosts = Json.integer(company, -1, "active_posts_count");
+        if (apiActivePosts >= 0) {
+            currentActivePostsCount = apiActivePosts;
+        }
 
         String logoUrl = AvatarLoader.extractUrl(null, company);
         String coverUrl = AvatarLoader.extractCoverUrl(company);
@@ -332,18 +362,46 @@ public class CompanyProfileActivity extends AppCompatActivity {
         String locText = (location != null && !location.isEmpty()) ? location : "Cambodia";
         tvIndustryLocation.setText(indText + " • " + locText);
 
-        // Verification Badge
+        // Verification Badge + Alert Banner (matching Web profile.blade.php)
         if (isVerified) {
             tvVerifiedBadge.setText("✓ Verified Partner");
             tvVerifiedBadge.setBackgroundTintList(ColorStateList.valueOf(
                     ContextCompat.getColor(this, R.color.tint_green_bg)));
             tvVerifiedBadge.setTextColor(MaterialColors.getColor(
                     tvVerifiedBadge, androidx.appcompat.R.attr.colorPrimary));
+            if (cardVerificationAlert != null) cardVerificationAlert.setVisibility(View.GONE);
+        } else if (isRejected) {
+            tvVerifiedBadge.setText("✕ Verification Rejected");
+            tvVerifiedBadge.setBackgroundTintList(ColorStateList.valueOf(
+                    ContextCompat.getColor(this, R.color.tint_red_bg)));
+            tvVerifiedBadge.setTextColor(ContextCompat.getColor(this, R.color.tint_red));
+            if (cardVerificationAlert != null) {
+                cardVerificationAlert.setVisibility(View.VISIBLE);
+                cardVerificationAlert.setCardBackgroundColor(ContextCompat.getColor(this, R.color.tint_red_bg));
+                cardVerificationAlert.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tint_red)));
+                iconVerificationAlertBox.setCardBackgroundColor(ContextCompat.getColor(this, R.color.tint_red));
+                ivVerificationAlertIcon.setImageResource(R.drawable.ic_info);
+                tvVerificationAlertTitle.setText("Verification Needs Attention (Rejected)");
+                tvVerificationAlertTitle.setTextColor(ContextCompat.getColor(this, R.color.tint_red));
+                tvVerificationAlertBody.setText(notEmpty(rejectionReason)
+                        ? "Admin Feedback: " + rejectionReason.trim()
+                        : "Your company verification was not approved. Please review and update your organization details below.");
+            }
         } else {
             tvVerifiedBadge.setText("⏳ Pending Verification");
             tvVerifiedBadge.setBackgroundTintList(ColorStateList.valueOf(
                     ContextCompat.getColor(this, R.color.tint_amber_bg)));
             tvVerifiedBadge.setTextColor(ContextCompat.getColor(this, R.color.tint_amber));
+            if (cardVerificationAlert != null) {
+                cardVerificationAlert.setVisibility(View.VISIBLE);
+                cardVerificationAlert.setCardBackgroundColor(ContextCompat.getColor(this, R.color.tint_amber_bg));
+                cardVerificationAlert.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tint_amber)));
+                iconVerificationAlertBox.setCardBackgroundColor(ContextCompat.getColor(this, R.color.tint_amber));
+                ivVerificationAlertIcon.setImageResource(R.drawable.ic_hourglass);
+                tvVerificationAlertTitle.setText("Account Pending University Verification");
+                tvVerificationAlertTitle.setTextColor(ContextCompat.getColor(this, R.color.tint_amber));
+                tvVerificationAlertBody.setText("Your organization profile is currently under review by the University Admin. Complete all company details below to speed up verification.");
+            }
         }
 
         // About Organization
@@ -384,21 +442,70 @@ public class CompanyProfileActivity extends AppCompatActivity {
         }
         tvFieldContact.setText(contactSb.length() > 0 ? contactSb.toString() : "Not specified");
 
-        // Completeness Calculation (8 fields)
-        int filled = 0;
-        if (!name.isEmpty()) filled++;
-        if (notEmpty(industry)) filled++;
-        if (notEmpty(location)) filled++;
-        if (notEmpty(address)) filled++;
-        if (notEmpty(website)) filled++;
-        if (notEmpty(contactPerson)) filled++;
-        if (notEmpty(contactPhone)) filled++;
-        if (notEmpty(description)) filled++;
+        // Completeness Calculation (9 fields matching Web profile.blade.php)
+        List<String> missingLabels = new ArrayList<>();
+        if (!notEmpty(logoUrl)) missingLabels.add("Logo");
+        if (!notEmpty(coverUrl)) missingLabels.add("Cover");
+        if (!notEmpty(industry)) missingLabels.add("Industry");
+        if (!notEmpty(location)) missingLabels.add("Location");
+        if (!notEmpty(contactPerson)) missingLabels.add("Hiring Lead");
+        if (!notEmpty(contactPhone)) missingLabels.add("Phone");
+        if (!notEmpty(website)) missingLabels.add("Website");
+        if (!notEmpty(address)) missingLabels.add("Address");
+        if (!notEmpty(description)) missingLabels.add("About Us");
 
-        int defaultPct = Math.round((filled / 8f) * 100f);
+        int filled = 9 - missingLabels.size();
+        int defaultPct = Math.round((filled / 9f) * 100f);
         int pct = Json.integer(company, defaultPct, "completeness_percent", "profile_completeness");
         tvCompletenessPercent.setText(pct + "%");
         progressCompleteness.setProgress(pct);
+        renderMissingCompletenessChips(missingLabels);
+    }
+
+    private void renderMissingCompletenessChips(List<String> missingLabels) {
+        if (chipGroupMissing == null || tvCompletenessDone == null) return;
+        chipGroupMissing.removeAllViews();
+
+        if (missingLabels.isEmpty()) {
+            chipGroupMissing.setVisibility(View.GONE);
+            tvCompletenessDone.setVisibility(View.VISIBLE);
+            return;
+        }
+
+        tvCompletenessDone.setVisibility(View.GONE);
+        chipGroupMissing.setVisibility(View.VISIBLE);
+        float density = getResources().getDisplayMetrics().density;
+
+        for (String label : missingLabels) {
+            Chip chip = new Chip(this);
+            chip.setText("+ " + label);
+            chip.setTextSize(10.5f);
+            chip.setEnsureMinTouchTargetSize(false);
+            chip.setChipMinHeight(24f * density);
+            chip.setChipCornerRadius(8f * density);
+            chip.setChipStartPadding(8f * density);
+            chip.setChipEndPadding(8f * density);
+            chip.setTextStartPadding(2f * density);
+            chip.setTextEndPadding(2f * density);
+            chip.setChipBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.bg_card)));
+            chip.setChipStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.stroke_soft)));
+            chip.setChipStrokeWidth(1f);
+            chip.setTextColor(ContextCompat.getColor(this, R.color.nav_unselected));
+            chip.setOnClickListener(v -> {
+                if ("Logo".equals(label)) {
+                    logoPicker.launch("image/*");
+                } else if ("Cover".equals(label)) {
+                    coverPicker.launch("image/*");
+                } else {
+                    Intent intent = new Intent(this, EditCompanyProfileActivity.class);
+                    if (currentCompany != null) {
+                        intent.putExtra(EditCompanyProfileActivity.EXTRA_COMPANY_JSON, currentCompany.toString());
+                    }
+                    startActivity(intent);
+                }
+            });
+            chipGroupMissing.addView(chip);
+        }
     }
 
     // ── Logo Upload via Multipart POST /api/company/profile ──────────────────

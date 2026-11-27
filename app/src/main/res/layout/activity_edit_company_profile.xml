@@ -34,7 +34,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Edit Company Profile"
+                android:text="Edit Profile"
                 android:textAppearance="?attr/textAppearanceTitleMedium"
                 android:textSize="17sp"
                 android:textStyle="bold" />
@@ -42,7 +42,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Update organization &amp; corporate details"
+                android:text="Update company info &amp; branding"
                 android:textColor="@color/nav_unselected"
                 android:textSize="11sp" />
         </LinearLayout>

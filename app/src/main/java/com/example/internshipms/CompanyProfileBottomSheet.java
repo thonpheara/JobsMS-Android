@@ -29,6 +29,8 @@ public class CompanyProfileBottomSheet extends BottomSheetDialogFragment {
     private static final String ARG_COMPANY_ID = "arg_company_id";
     private static final String ARG_COMPANY_NAME = "arg_company_name";
     private static final String ARG_LOCATION = "arg_location";
+    private static final String ARG_PREVIEW_JSON = "arg_preview_json";
+    private static final String ARG_ACTIVE_COUNT = "arg_active_count";
 
     private Call<JsonObject> companyCall;
 
@@ -47,6 +49,17 @@ public class CompanyProfileBottomSheet extends BottomSheetDialogFragment {
         args.putString(ARG_LOCATION, location);
         sheet.setArguments(args);
         sheet.show(fm, "company_profile_sheet");
+    }
+
+    public static void showPreview(FragmentManager fm, @NonNull JsonObject companyJson, int activePostsCount) {
+        CompanyProfileBottomSheet sheet = new CompanyProfileBottomSheet();
+        Bundle args = new Bundle();
+        args.putString(ARG_PREVIEW_JSON, companyJson.toString());
+        args.putInt(ARG_ACTIVE_COUNT, activePostsCount);
+        args.putString(ARG_COMPANY_NAME, Json.str(companyJson, "Company", "company_name", "name"));
+        args.putString(ARG_LOCATION, Json.str(companyJson, "Cambodia", "location", "address"));
+        sheet.setArguments(args);
+        sheet.show(fm, "company_profile_preview_sheet");
     }
 
     @Nullable
@@ -79,8 +92,88 @@ public class CompanyProfileBottomSheet extends BottomSheetDialogFragment {
         String cachedLogo = AvatarLoader.extractCompanyLogo(null, null, fallbackName);
         AvatarLoader.bind(cachedLogo, ivLogo, tvInitials);
 
+        if (args != null && args.containsKey(ARG_PREVIEW_JSON)) {
+            try {
+                JsonObject preview = com.google.gson.JsonParser.parseString(
+                        args.getString(ARG_PREVIEW_JSON, "{}")).getAsJsonObject();
+                int activeCount = args.getInt(ARG_ACTIVE_COUNT, 0);
+                bindCompany(preview, activeCount, new JsonArray(), view);
+                return;
+            } catch (Exception ignored) {
+            }
+        }
+
         if (companyId > 0) {
             fetchCompany(companyId, view);
+        }
+    }
+
+    private void bindCompany(@NonNull JsonObject company, int totalPositions,
+                             @NonNull JsonArray activePosts, @NonNull View root) {
+        String name = Json.str(company, "Company", "company_name", "name");
+        String industry = Json.str(company, "Technology & Operations", "industry", "sector");
+        String address = Json.str(company, "Cambodia", "address", "location", "city");
+        String description = Json.str(company,
+                "Registered host organization offering hands-on internship placements.",
+                "description", "bio", "about");
+        String website = Json.str(company, null, "website", "website_url");
+        boolean isVerified = company.has("is_verified") && !company.get("is_verified").isJsonNull()
+                ? company.get("is_verified").getAsBoolean()
+                : "verified".equalsIgnoreCase(Json.str(company, "pending", "verification_status"));
+
+        ((TextView) root.findViewById(R.id.tvCompanyName)).setText(name);
+        TextView tvInitials = root.findViewById(R.id.tvCompanyInitials);
+        ImageView ivLogo = root.findViewById(R.id.ivCompanyLogo);
+        tvInitials.setText(StudentDashboardActivity.initials(name));
+
+        String logoUrl = AvatarLoader.extractUrl(Json.obj(company, "user"), company);
+        if (logoUrl != null) {
+            AvatarLoader.rememberCompanyLogo(name, logoUrl);
+        } else {
+            logoUrl = AvatarLoader.extractCompanyLogo(null, null, name);
+        }
+        AvatarLoader.bind(logoUrl, ivLogo, tvInitials);
+
+        root.findViewById(R.id.tvVerifiedBadge)
+                .setVisibility(isVerified ? View.VISIBLE : View.GONE);
+        ((TextView) root.findViewById(R.id.tvIndustry)).setText(industry);
+        ((TextView) root.findViewById(R.id.tvLocation)).setText("📍 " + address);
+        ((TextView) root.findViewById(R.id.tvCompanyBio)).setText(description);
+
+        TextView tvWebsite = root.findViewById(R.id.tvWebsite);
+        if (website != null && !website.isEmpty()) {
+            tvWebsite.setVisibility(View.VISIBLE);
+            tvWebsite.setText("🌐 " + website);
+            tvWebsite.setOnClickListener(v -> {
+                try {
+                    String url = website.startsWith("http") ? website : "https://" + website;
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                } catch (Exception ignored) {
+                }
+            });
+        } else {
+            tvWebsite.setVisibility(View.GONE);
+        }
+
+        int displayActive = Math.max(totalPositions, activePosts.size());
+        ((TextView) root.findViewById(R.id.tvActiveCount))
+                .setText(String.valueOf(displayActive));
+        ((TextView) root.findViewById(R.id.tvTotalPositions))
+                .setText(String.valueOf(displayActive));
+
+        ViewGroup container = root.findViewById(R.id.containerCompanyPosts);
+        container.removeAllViews();
+        for (JsonElement el : activePosts) {
+            if (!el.isJsonObject()) continue;
+            JsonObject post = el.getAsJsonObject();
+            addOpeningRow(post, name, container);
+        }
+        TextView tvNoOpenings = root.findViewById(R.id.tvNoOpenings);
+        if (activePosts.size() == 0 && totalPositions > 0) {
+            tvNoOpenings.setVisibility(View.VISIBLE);
+            tvNoOpenings.setText(totalPositions + " active opening(s) visible to students.");
+        } else {
+            tvNoOpenings.setVisibility(activePosts.size() == 0 ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -94,65 +187,12 @@ public class CompanyProfileBottomSheet extends BottomSheetDialogFragment {
                 JsonObject company = Json.obj(d, "company");
                 if (company == null) company = d;
 
-                String name = Json.str(company, "Company", "company_name", "name");
-                String industry = Json.str(company, "Technology & Operations", "industry", "sector");
-                String address = Json.str(company, "Cambodia", "address", "location", "city");
-                String description = Json.str(company,
-                        "Registered host organization offering hands-on internship placements.",
-                        "description", "bio", "about");
-                String website = Json.str(company, null, "website", "website_url");
-                boolean isVerified = d.has("is_verified") && !d.get("is_verified").isJsonNull()
-                        ? d.get("is_verified").getAsBoolean()
-                        : "verified".equalsIgnoreCase(Json.str(company, "verified", "verification_status"));
+                if (!company.has("is_verified") && d.has("is_verified")) {
+                    company.add("is_verified", d.get("is_verified"));
+                }
                 int totalPositions = Json.integer(d, 0, "total_positions");
-
-                ((TextView) root.findViewById(R.id.tvCompanyName)).setText(name);
-                TextView tvInitials = root.findViewById(R.id.tvCompanyInitials);
-                ImageView ivLogo = root.findViewById(R.id.ivCompanyLogo);
-                tvInitials.setText(StudentDashboardActivity.initials(name));
-
-                String logoUrl = AvatarLoader.extractUrl(Json.obj(company, "user"), company);
-                if (logoUrl != null) {
-                    AvatarLoader.rememberCompanyLogo(name, logoUrl);
-                } else {
-                    logoUrl = AvatarLoader.extractCompanyLogo(null, null, name);
-                }
-                AvatarLoader.bind(logoUrl, ivLogo, tvInitials);
-
-                root.findViewById(R.id.tvVerifiedBadge)
-                        .setVisibility(isVerified ? View.VISIBLE : View.GONE);
-                ((TextView) root.findViewById(R.id.tvIndustry)).setText(industry);
-                ((TextView) root.findViewById(R.id.tvLocation)).setText("📍 " + address);
-                ((TextView) root.findViewById(R.id.tvCompanyBio)).setText(description);
-
-                TextView tvWebsite = root.findViewById(R.id.tvWebsite);
-                if (website != null && !website.isEmpty()) {
-                    tvWebsite.setVisibility(View.VISIBLE);
-                    tvWebsite.setText("🌐 " + website);
-                    tvWebsite.setOnClickListener(v -> {
-                        try {
-                            String url = website.startsWith("http") ? website : "https://" + website;
-                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-                        } catch (Exception ignored) {
-                        }
-                    });
-                }
-
                 JsonArray activePosts = Json.arr(d, "active_posts");
-                ((TextView) root.findViewById(R.id.tvActiveCount))
-                        .setText(String.valueOf(activePosts.size()));
-                ((TextView) root.findViewById(R.id.tvTotalPositions))
-                        .setText(String.valueOf(Math.max(totalPositions, activePosts.size())));
-
-                ViewGroup container = root.findViewById(R.id.containerCompanyPosts);
-                container.removeAllViews();
-                for (JsonElement el : activePosts) {
-                    if (!el.isJsonObject()) continue;
-                    JsonObject post = el.getAsJsonObject();
-                    addOpeningRow(post, name, container);
-                }
-                root.findViewById(R.id.tvNoOpenings)
-                        .setVisibility(activePosts.size() == 0 ? View.VISIBLE : View.GONE);
+                bindCompany(company, totalPositions, activePosts, root);
             }
 
             @Override

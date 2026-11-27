@@ -1,5 +1,6 @@
 package com.example.internshipms;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -15,6 +16,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
@@ -50,27 +52,40 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
 
         LinearProgressIndicator progressStrength = view.findViewById(R.id.progressStrength);
         TextView tvStrengthLabel = view.findViewById(R.id.tvStrengthLabel);
+        TextView tvReqLength = view.findViewById(R.id.tvReqLength);
+        TextView tvReqCase = view.findViewById(R.id.tvReqCase);
+        TextView tvReqSymbol = view.findViewById(R.id.tvReqSymbol);
+        MaterialButton btnUpdate = view.findViewById(R.id.btnUpdatePassword);
 
-        etNew.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+        etCurrent.addTextChangedListener(new SimpleWatcher(() -> tilCurrent.setError(null)));
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                tilNew.setError(null);
-                updateStrength(s == null ? "" : s.toString(), progressStrength, tvStrengthLabel);
+        Runnable syncConfirmMatch = () -> {
+            tilConfirm.setError(null);
+            String np = text(etNew);
+            String cp = text(etConfirm);
+            if (!cp.isEmpty() && cp.equals(np)) {
+                tilConfirm.setHelperText("✓ Passwords match");
+                tilConfirm.setHelperTextColor(ColorStateList.valueOf(
+                        ContextCompat.getColor(requireContext(), R.color.tint_green)));
+            } else {
+                tilConfirm.setHelperText(null);
             }
+        };
 
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        etNew.addTextChangedListener(new SimpleWatcher(() -> {
+            tilNew.setError(null);
+            String np = text(etNew);
+            updateStrength(np, progressStrength, tvStrengthLabel);
+            updateChecklist(np, tvReqLength, tvReqCase, tvReqSymbol);
+            syncConfirmMatch.run();
+        }));
+
+        etConfirm.addTextChangedListener(new SimpleWatcher(syncConfirmMatch));
 
         view.findViewById(R.id.btnClose).setOnClickListener(v -> dismiss());
         view.findViewById(R.id.btnCancel).setOnClickListener(v -> dismiss());
 
-        view.findViewById(R.id.btnUpdatePassword).setOnClickListener(v -> {
+        btnUpdate.setOnClickListener(v -> {
             tilCurrent.setError(null);
             tilNew.setError(null);
             tilConfirm.setError(null);
@@ -97,7 +112,10 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
             }
             if (!ok) return;
 
-            v.setEnabled(false);
+            btnUpdate.setEnabled(false);
+            btnUpdate.setText("Updating…");
+            setCancelable(false);
+
             new com.example.internshipms.repository.StudentRepository(requireContext())
                     .updatePassword(current, newPass, confirm,
                             new com.example.internshipms.repository.StudentRepository.JsonResult() {
@@ -107,13 +125,15 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
                                     Toast.makeText(requireContext(),
                                             "Password updated successfully!",
                                             Toast.LENGTH_SHORT).show();
-                                    dismiss();
+                                    dismissAllowingStateLoss();
                                 }
 
                                 @Override
                                 public void onError(@NonNull com.example.internshipms.network.ApiError error) {
                                     if (!isAdded()) return;
-                                    v.setEnabled(true);
+                                    setCancelable(true);
+                                    btnUpdate.setEnabled(true);
+                                    btnUpdate.setText("Update Password");
                                     String currErr = error.fieldErrors.get("current_password");
                                     String passErr = error.fieldErrors.get("password");
                                     if (currErr != null) tilCurrent.setError(currErr);
@@ -124,6 +144,22 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
                                 }
                             });
         });
+    }
+
+    private void updateChecklist(String pass, TextView tvLen, TextView tvCase, TextView tvSym) {
+        boolean hasLen = pass.length() >= MIN_LENGTH;
+        boolean hasCase = pass.matches(".*[A-Z].*") && pass.matches(".*[a-z].*");
+        boolean hasSym = pass.matches(".*\\d.*") || pass.matches(".*[^A-Za-z0-9].*");
+        styleCheckItem(tvLen, hasLen, "At least 8 characters");
+        styleCheckItem(tvCase, hasCase, "Uppercase & lowercase letters");
+        styleCheckItem(tvSym, hasSym, "At least one number or symbol");
+    }
+
+    private void styleCheckItem(@Nullable TextView tv, boolean met, String text) {
+        if (tv == null) return;
+        tv.setText((met ? "✓  " : "○  ") + text);
+        tv.setTextColor(ContextCompat.getColor(requireContext(),
+                met ? R.color.tint_green : R.color.nav_unselected));
     }
 
     private void updateStrength(String pass, LinearProgressIndicator bar, TextView label) {
@@ -158,6 +194,27 @@ public class ChangePasswordBottomSheet extends BottomSheetDialogFragment {
 
     private static String text(TextInputEditText et) {
         return et.getText() == null ? "" : et.getText().toString();
+    }
+
+    private static class SimpleWatcher implements TextWatcher {
+        private final Runnable callback;
+
+        SimpleWatcher(Runnable callback) {
+            this.callback = callback;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            callback.run();
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+        }
     }
 }
 

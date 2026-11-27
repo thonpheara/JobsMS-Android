@@ -96,8 +96,14 @@ public class CompanyDashboardActivity extends AppCompatActivity {
                 Navigator.switchTab(this, CompanyApplicantsActivity.class, false));
         findViewById(R.id.statPending).setOnClickListener(v ->
                 Navigator.switchTab(this, CompanyApplicantsActivity.class, false));
+        findViewById(R.id.statOffers).setOnClickListener(v ->
+                Navigator.switchTab(this, CompanyApplicantsActivity.class, false));
         findViewById(R.id.tvViewPipeline).setOnClickListener(v ->
                 Navigator.switchTab(this, CompanyApplicantsActivity.class, false));
+        View tvViewAllInterviews = findViewById(R.id.tvViewAllInterviews);
+        if (tvViewAllInterviews != null) {
+            tvViewAllInterviews.setOnClickListener(v -> CompanyInterviewsActivity.launch(this));
+        }
 
         View cardGoInterviews = findViewById(R.id.cardGoInterviews);
         if (cardGoInterviews != null) {
@@ -202,11 +208,14 @@ public class CompanyDashboardActivity extends AppCompatActivity {
         if (profile == null) profile = Json.obj(data, "profile");
         String companyName = null;
         boolean verified = false;
+        String verStatus = "";
+        String rejectionReason = null;
         String logoUrl = null;
 
         if (profile != null) {
             companyName = Json.str(profile, null, "company_name", "name");
-            String verStatus = Json.str(profile, "", "verification_status");
+            verStatus = Json.str(profile, "", "verification_status");
+            rejectionReason = Json.str(profile, null, "rejection_reason");
             verified = "verified".equalsIgnoreCase(verStatus)
                     || "approved".equalsIgnoreCase(verStatus)
                     || (profile.has("is_verified") && !profile.get("is_verified").isJsonNull()
@@ -218,32 +227,58 @@ public class CompanyDashboardActivity extends AppCompatActivity {
         }
         if (companyName == null) companyName = SessionManager.get(this).getName();
         bindHeader(companyName, verified, logoUrl);
+        bindVerificationBanner(verified, verStatus, rejectionReason);
 
         // Stats (check nested "stats" object from CompanyApiController@dashboard first)
         JsonObject stats = Json.obj(data, "stats");
         JsonObject statSrc = stats != null ? stats : data;
         int postsCount = Json.integer(statSrc, 0,
                 "active_posts", "total_posts", "posts_count", "active_listings", "listings_count");
+        int totalPostsCount = Json.integer(statSrc, postsCount, "total_posts");
         int totalApplicants = Json.integer(statSrc, 0,
                 "total_applicants", "applicants_count");
         int pendingCount = Json.integer(statSrc, 0,
                 "pending_review", "pending_count", "pending_reviews", "pending");
         int acceptedCount = Json.integer(statSrc, 0,
                 "accepted", "accepted_count", "offers_accepted");
+        int rescheduleRequests = Json.integer(statSrc, 0, "reschedule_requests");
+
+        double placementRate = 0;
+        JsonObject analytics = Json.obj(data, "analytics");
+        JsonObject statusDist = analytics != null ? Json.obj(analytics, "status_distribution") : null;
+        if (statusDist != null && statusDist.has("placement_rate") && !statusDist.get("placement_rate").isJsonNull()) {
+            try {
+                placementRate = statusDist.get("placement_rate").getAsDouble();
+            } catch (Exception ignored) {
+            }
+        }
+        String placementSub = placementRate > 0
+                ? String.format(Locale.US, "%.0f%% Placed", placementRate)
+                : (acceptedCount > 0 ? "Confirmed" : "No offers yet");
+
+        String postsSub = totalPostsCount > 0
+                ? postsCount + " / " + totalPostsCount + " total"
+                : "● Vetted & Published";
 
         bindStat(R.id.statListings, "ACTIVE JOBS",
-                String.valueOf(postsCount), "● Vetted & Published",
+                String.valueOf(postsCount), postsSub,
                 R.drawable.ic_work, R.color.tint_indigo_bg, R.color.tint_indigo, 0);
         bindStat(R.id.statApplicants, "TOTAL APPLICANTS",
                 String.valueOf(totalApplicants), "↗ Received candidacies",
                 R.drawable.ic_group, R.color.tint_indigo_bg, R.color.tint_indigo, 0);
         bindStat(R.id.statPending, "PENDING REVIEWS",
-                String.valueOf(pendingCount), "Action req.",
-                R.drawable.ic_applications, R.color.tint_amber_bg, R.color.tint_amber, 0);
+                String.valueOf(pendingCount), pendingCount > 0 ? "Action req." : "Up to date",
+                R.drawable.ic_applications,
+                pendingCount > 0 ? R.color.tint_amber_bg : R.color.tint_green_bg,
+                pendingCount > 0 ? R.color.tint_amber : 0, 0);
         bindStat(R.id.statOffers, "OFFERS ACCEPTED",
-                String.valueOf(acceptedCount), "Confirmed",
+                String.valueOf(acceptedCount), placementSub,
                 R.drawable.ic_check_circle, R.color.tint_green_bg,
                 0, 0);  // green icon = colorPrimary default
+
+        // Upcoming interviews & shortcut subtitle
+        JsonArray upcomingInterviews = Json.arr(data, "upcoming_interviews");
+        bindUpcomingInterviews(upcomingInterviews, rescheduleRequests);
 
         // Recent applicants
         JsonArray applicants = null;
@@ -278,6 +313,180 @@ public class CompanyDashboardActivity extends AppCompatActivity {
             } else {
                 tvNewBadge.setVisibility(View.GONE);
             }
+        }
+    }
+
+    // ── Verification Alert Banner & Upcoming Interviews ──────────────────────
+
+    private void bindVerificationBanner(boolean verified, String verStatus, @androidx.annotation.Nullable String rejectionReason) {
+        MaterialCardView card = findViewById(R.id.cardVerificationAlert);
+        if (card == null) return;
+        if (verified) {
+            card.setVisibility(View.GONE);
+            return;
+        }
+        MaterialCardView iconBox = findViewById(R.id.iconVerificationAlertBox);
+        ImageView ivIcon = findViewById(R.id.ivVerificationAlertIcon);
+        TextView tvTitle = findViewById(R.id.tvVerificationAlertTitle);
+        TextView tvBody = findViewById(R.id.tvVerificationAlertBody);
+
+        boolean isRejected = "rejected".equalsIgnoreCase(verStatus);
+        card.setVisibility(View.VISIBLE);
+        card.setOnClickListener(v -> Navigator.switchTab(this, CompanyProfileActivity.class, false));
+        if (isRejected) {
+            card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.tint_red_bg));
+            card.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tint_red)));
+            if (iconBox != null) iconBox.setCardBackgroundColor(ContextCompat.getColor(this, R.color.tint_red));
+            if (ivIcon != null) ivIcon.setImageResource(R.drawable.ic_info);
+            if (tvTitle != null) {
+                tvTitle.setText("Verification Rejected");
+                tvTitle.setTextColor(ContextCompat.getColor(this, R.color.tint_red));
+            }
+            if (tvBody != null) {
+                tvBody.setText(rejectionReason != null && !rejectionReason.trim().isEmpty()
+                        ? "Reason: " + rejectionReason.trim() + " Tap to update profile."
+                        : "Profile needs attention. Tap to update your company profile.");
+            }
+        } else {
+            card.setCardBackgroundColor(ContextCompat.getColor(this, R.color.tint_amber_bg));
+            card.setStrokeColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tint_amber)));
+            if (iconBox != null) iconBox.setCardBackgroundColor(ContextCompat.getColor(this, R.color.tint_amber));
+            if (ivIcon != null) ivIcon.setImageResource(R.drawable.ic_hourglass);
+            if (tvTitle != null) {
+                tvTitle.setText("Account Pending Verification");
+                tvTitle.setTextColor(ContextCompat.getColor(this, R.color.tint_amber));
+            }
+            if (tvBody != null) {
+                tvBody.setText("Under review by University Admin. Complete your profile to speed up approval.");
+            }
+        }
+    }
+
+    private void bindUpcomingInterviews(@NonNull JsonArray interviews, int rescheduleRequests) {
+        TextView tvIntSub = findViewById(R.id.tvInterviewsSub);
+        if (tvIntSub != null) {
+            if (rescheduleRequests > 0) {
+                tvIntSub.setText("⚠ " + rescheduleRequests + " reschedule req.");
+                tvIntSub.setTextColor(ContextCompat.getColor(this, R.color.tint_amber));
+                tvIntSub.setTypeface(null, android.graphics.Typeface.BOLD);
+            } else if (interviews.size() > 0) {
+                tvIntSub.setText(interviews.size() + " upcoming");
+                tvIntSub.setTextColor(MaterialColors.getColor(tvIntSub, androidx.appcompat.R.attr.colorPrimary));
+                tvIntSub.setTypeface(null, android.graphics.Typeface.BOLD);
+            } else {
+                tvIntSub.setText("Schedule & track");
+                tvIntSub.setTextColor(ContextCompat.getColor(this, R.color.nav_unselected));
+                tvIntSub.setTypeface(null, android.graphics.Typeface.NORMAL);
+            }
+        }
+
+        View section = findViewById(R.id.sectionUpcomingInterviews);
+        LinearLayout container = findViewById(R.id.containerUpcomingInterviews);
+        TextView tvBadge = findViewById(R.id.tvUpcomingCountBadge);
+        if (section == null || container == null) return;
+
+        container.removeAllViews();
+        if (interviews.size() == 0) {
+            section.setVisibility(View.GONE);
+            return;
+        }
+
+        section.setVisibility(View.VISIBLE);
+        if (tvBadge != null) {
+            tvBadge.setVisibility(View.VISIBLE);
+            tvBadge.setText(interviews.size() + " scheduled");
+        }
+
+        int limit = Math.min(3, interviews.size());
+        float density = getResources().getDisplayMetrics().density;
+        int pad = Math.round(13 * density);
+        int marginBot = Math.round(8 * density);
+
+        for (int i = 0; i < limit; i++) {
+            if (!interviews.get(i).isJsonObject()) continue;
+            JsonObject iv = interviews.get(i).getAsJsonObject();
+            JsonObject app = Json.obj(iv, "application");
+            JsonObject student = app != null ? Json.obj(app, "student_profile", "student") : null;
+            JsonObject user = student != null ? Json.obj(student, "user") : null;
+            JsonObject post = app != null ? Json.obj(app, "internship_post", "post") : null;
+
+            String candName = Json.str(user, Json.str(student, "Candidate", "full_name", "name"), "name");
+            String roleTitle = post != null ? Json.str(post, "Position", "title") : "Position";
+            String schedRaw = Json.str(iv, "", "scheduled_at");
+            String mode = Json.str(iv, "in_person", "meeting_type");
+            String status = Json.str(iv, "scheduled", "status");
+            boolean confirmed = iv.has("confirmed_by_student")
+                    && !iv.get("confirmed_by_student").isJsonNull()
+                    && iv.get("confirmed_by_student").getAsBoolean();
+
+            MaterialCardView rowCard = new MaterialCardView(this);
+            LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            cardLp.bottomMargin = marginBot;
+            rowCard.setLayoutParams(cardLp);
+            rowCard.setRadius(16 * density);
+            rowCard.setCardElevation(0f);
+            rowCard.setStrokeWidth(Math.round(1 * density));
+            rowCard.setStrokeColor(ContextCompat.getColor(this, R.color.stroke_soft));
+            rowCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.bg_card));
+            rowCard.setClickable(true);
+            rowCard.setFocusable(true);
+            rowCard.setOnClickListener(v -> CompanyInterviewsActivity.launch(this));
+
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(android.view.Gravity.CENTER_VERTICAL);
+            row.setPadding(pad, pad, pad, pad);
+
+            LinearLayout info = new LinearLayout(this);
+            info.setOrientation(LinearLayout.VERTICAL);
+            info.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+            TextView tvName = new TextView(this);
+            tvName.setText(candName + " • " + roleTitle);
+            tvName.setTextSize(13f);
+            tvName.setTypeface(null, android.graphics.Typeface.BOLD);
+            tvName.setTextColor(MaterialColors.getColor(rowCard, com.google.android.material.R.attr.colorOnSurface));
+            tvName.setMaxLines(1);
+            tvName.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            info.addView(tvName);
+
+            TextView tvWhen = new TextView(this);
+            String modeLbl = "online".equalsIgnoreCase(mode) ? "Online Video" : "In-Person";
+            String prettyDate = !schedRaw.isEmpty()
+                    ? StudentDashboardActivity.formatDateTime(schedRaw) : "Scheduled";
+            tvWhen.setText("📅 " + prettyDate + " • " + modeLbl);
+            tvWhen.setTextSize(11.5f);
+            tvWhen.setTextColor(ContextCompat.getColor(this, R.color.nav_unselected));
+            tvWhen.setPadding(0, Math.round(2 * density), 0, 0);
+            info.addView(tvWhen);
+
+            row.addView(info);
+
+            TextView tvStatus = new TextView(this);
+            tvStatus.setTextSize(10f);
+            tvStatus.setTypeface(null, android.graphics.Typeface.BOLD);
+            tvStatus.setBackgroundResource(R.drawable.bg_chip);
+            tvStatus.setPadding(Math.round(8 * density), Math.round(3 * density),
+                    Math.round(8 * density), Math.round(3 * density));
+            if ("reschedule_requested".equalsIgnoreCase(status)) {
+                tvStatus.setText("⚠ Reschedule");
+                tvStatus.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tint_amber_bg)));
+                tvStatus.setTextColor(ContextCompat.getColor(this, R.color.tint_amber));
+            } else if (confirmed || "confirmed".equalsIgnoreCase(status)) {
+                tvStatus.setText("Confirmed ✓");
+                tvStatus.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tint_green_bg)));
+                tvStatus.setTextColor(ContextCompat.getColor(this, R.color.tint_green));
+            } else {
+                tvStatus.setText("Scheduled");
+                tvStatus.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.tint_indigo_bg)));
+                tvStatus.setTextColor(ContextCompat.getColor(this, R.color.tint_indigo));
+            }
+            row.addView(tvStatus);
+
+            rowCard.addView(row);
+            container.addView(rowCard);
         }
     }
 
@@ -467,36 +676,44 @@ public class CompanyDashboardActivity extends AppCompatActivity {
     private void applyActionButton(MaterialButton btn, String status) {
         switch (status.toLowerCase(Locale.ROOT)) {
             case "shortlisted":
-                // Dark filled "Schedule" button
                 btn.setText("Schedule");
                 btn.setIconResource(R.drawable.ic_event);
-                btn.setBackgroundTintList(
-                        ColorStateList.valueOf(Color.parseColor("#FF0F172A")));
-                btn.setTextColor(Color.WHITE);
-                btn.setIconTint(ColorStateList.valueOf(Color.WHITE));
+                int indigo = ContextCompat.getColor(this, R.color.tint_indigo);
+                btn.setBackgroundTintList(ColorStateList.valueOf(
+                        ContextCompat.getColor(this, R.color.tint_indigo_bg)));
+                btn.setTextColor(indigo);
+                btn.setIconTint(ColorStateList.valueOf(indigo));
                 break;
             case "interview":
             case "interview_scheduled":
             case "interviewed":
-                // Outline "Details" button
-                btn.setText("Details");
-                btn.setIconResource(R.drawable.ic_visibility);
+                btn.setText("Interview");
+                btn.setIconResource(R.drawable.ic_event);
                 btn.setBackgroundTintList(ColorStateList.valueOf(
                         ContextCompat.getColor(this, R.color.tint_indigo_bg)));
                 btn.setTextColor(ContextCompat.getColor(this, R.color.tint_indigo));
                 btn.setIconTint(ColorStateList.valueOf(
                         ContextCompat.getColor(this, R.color.tint_indigo)));
                 break;
-            default:
-                // Outline "Review CV" button (pending / under_review)
-                btn.setText("Review CV");
+            case "accepted":
+            case "rejected":
+            case "withdrawn":
+                btn.setText("Details");
                 btn.setIconResource(R.drawable.ic_visibility);
-                int onSurface = MaterialColors.getColor(btn,
-                        com.google.android.material.R.attr.colorOnSurface);
+                int slate = ContextCompat.getColor(this, R.color.nav_unselected);
                 btn.setBackgroundTintList(ColorStateList.valueOf(
-                        ContextCompat.getColor(this, R.color.tint_indigo_bg)));
-                btn.setTextColor(onSurface);
-                btn.setIconTint(ColorStateList.valueOf(onSurface));
+                        ContextCompat.getColor(this, R.color.bg_page)));
+                btn.setTextColor(slate);
+                btn.setIconTint(ColorStateList.valueOf(slate));
+                break;
+            default:
+                btn.setText("Review");
+                btn.setIconResource(R.drawable.ic_visibility);
+                int green = ContextCompat.getColor(this, R.color.tint_green);
+                btn.setBackgroundTintList(ColorStateList.valueOf(
+                        ContextCompat.getColor(this, R.color.tint_green_bg)));
+                btn.setTextColor(green);
+                btn.setIconTint(ColorStateList.valueOf(green));
                 break;
         }
     }
