@@ -2,7 +2,7 @@
 
 An enterprise-grade native Android mobile application for managing **Internships & Job Opportunities**, built with **Java** and **Material Design 3**. This application connects seamlessly with the Laravel RESTful API backend to serve both **Students / Job Seekers** and **Employer Companies**.
 
-> 🔗 **Web Application & REST API Repository**: [thonpheara/InternshipMS](https://github.com/thonpheara/InternshipMS)
+> 🔗 **Web Application & REST API Repository**: [thonpheara/InternshipMS](https://github.com/thonpheara/JobsMS)
 
 ---
 
